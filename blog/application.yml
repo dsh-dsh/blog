@@ -1,0 +1,6 @@
+spring.datasource.url: jdbc:mysql://localhost:3306/blog?useSSL=false&amp&serverTimezone=UTC
+spring.datasource.username: root
+spring.datasource.password: testmysql
+spring.jpa.hibernate.ddl-auto: create-drop
+spring.jpa.show-sql: true
+server.port: 8081
