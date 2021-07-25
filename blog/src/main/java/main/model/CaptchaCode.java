@@ -8,10 +8,11 @@ import java.util.Date;
 
 @Data
 @Entity
+@Table(name = "captcha_codes")
 public class CaptchaCode {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column(nullable = false)

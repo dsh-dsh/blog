@@ -8,10 +8,11 @@ import java.util.Set;
 
 @Data
 @Entity
+@Table(name = "posts")
 public class Post {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column(nullable = false, columnDefinition="tinyint")
@@ -27,7 +28,7 @@ public class Post {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
-    private User author;
+    private User user;
 
     @Column(nullable = false)
     private Date time;
@@ -41,8 +42,7 @@ public class Post {
     @Column(nullable = false)
     private int viewCount;
 
-    @OneToMany(mappedBy = "tag")
-    private Set<TagPost> tags;
-
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<PostComment> comments;
 
 }

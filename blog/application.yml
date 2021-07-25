@@ -4,3 +4,12 @@ spring.datasource.password: testmysql
 spring.jpa.hibernate.ddl-auto: create-drop
 spring.jpa.show-sql: true
 server.port: 8081
+
+spring.datasource.initialization-mode: always
+
+init.title: DevPub
+init.subtitle: Рассказы разработчиков
+init.phone: +7 903 666-44-55
+init.email: mail@mail.ru
+init.copyright: Дмитрий Сергеев
+init.copyrightFrom: 2005
