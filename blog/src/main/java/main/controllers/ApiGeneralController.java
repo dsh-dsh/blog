@@ -1,8 +1,10 @@
 package main.controllers;
 
-import main.api.response.InitResponse;
-import main.api.response.SettingsResponse;
-import main.servise.SettingsService;
+import main.api.responses.InitResponse;
+import main.api.responses.SettingsResponse;
+import main.api.responses.TagResponse;
+import main.servises.SettingsService;
+import main.servises.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,9 +15,10 @@ public class ApiGeneralController {
 
     @Autowired
     private InitResponse initResponse;
-
     @Autowired
     private SettingsService settingsService;
+    @Autowired
+    private TagService tagService;
 
     @GetMapping("/api/init")
     public InitResponse init() {
@@ -28,17 +31,11 @@ public class ApiGeneralController {
     }
 
     @GetMapping("/api/tag")
-    public ResponseEntity<String> tags() {
-        return ResponseEntity.ok(
-                "{\n" +
-                "\"tags\":\n" +
-                "[\n" +
-                "{\"name\":\"Java\", \"weight\":1},\n" +
-                "{\"name\":\"Spring\", \"weight\":0.56},\n" +
-                "{\"name\":\"Hibernate\", \"weight\":0.22},\n" +
-                "{\"name\":\"Hadoop\", \"weight\":0.17},\n" +
-                "]\n" +
-                "}");
+    public ResponseEntity<TagResponse> tags() {
+
+        TagResponse tagResponse = tagService.getTags();
+
+        return ResponseEntity.ok(tagResponse);
     }
 
 }

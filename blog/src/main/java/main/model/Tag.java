@@ -1,11 +1,15 @@
 package main.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 
 @Data
+@EqualsAndHashCode(exclude = {"posts"})
 @Entity
 @Table(name = "tags")
 public class Tag {
@@ -17,7 +21,8 @@ public class Tag {
     @Column(nullable = false)
     private String name;
 
+    @JsonIgnoreProperties("tag")
     @OneToMany(mappedBy = "tag")
-    private Set<TagPost> posts;
+    private List<TagPost> posts;
 
 }

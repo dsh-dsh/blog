@@ -1,6 +1,6 @@
-package main.servise;
+package main.servises;
 
-import main.api.response.SettingsResponse;
+import main.api.responses.SettingsResponse;
 import org.springframework.stereotype.Service;
 
 @Service

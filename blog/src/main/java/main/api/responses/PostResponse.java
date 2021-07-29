@@ -1,4 +1,4 @@
-package main.api.response;
+package main.api.responses;
 
 import lombok.Data;
 import main.dto.PostDTO;
@@ -11,8 +11,8 @@ public class PostResponse {
     private int count;
     private List<PostDTO> posts;
 
-    public PostResponse(int count, List<PostDTO> postDTOList) {
+    public PostResponse(int count, List<PostDTO> posts) {
         this.count = count;
-        this.posts = postDTOList;
+        this.posts = posts;
     }
 }

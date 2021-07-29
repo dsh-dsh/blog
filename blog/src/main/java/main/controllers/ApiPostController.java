@@ -1,7 +1,7 @@
 package main.controllers;
 
-import main.api.response.PostResponse;
-import main.servise.PostService;
+import main.api.responses.PostResponse;
+import main.servises.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;

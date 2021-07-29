@@ -1,9 +1,11 @@
-package main.servise;
+package main.servises;
 
-import main.api.response.PostResponse;
+import main.api.responses.PostResponse;
 import main.dto.PostDTO;
+import main.model.ModerationStatus;
 import main.model.Post;
-import main.repository.PostRepository;
+import main.repositories.PostRepository;
+import main.util.PostMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,12 +15,16 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class PostService {
 
     @Autowired
     private PostRepository postRepository;
+
+    @Autowired
+    private PostMapper postMapper;
 
     public PostResponse getPosts(Map<String, String> parameters) {
 
@@ -29,21 +35,29 @@ public class PostService {
         Sort sort = getSortMode(mode);
         Pageable pageable = PageRequest.of(offset, limit, sort);
 
-        Page<PostDTO> page = postRepository.findAllToDTO(pageable);
+        Page<Post> page = postRepository.findByIsActiveAndModerationStatus(true, ModerationStatus.ACCEPTED, pageable);
+        List<Post> posts = page.getContent();
+        List<PostDTO> postDTOList = posts.stream().map(postMapper::mapToDTO).collect(Collectors.toList());
 
-        return new PostResponse(page.getTotalPages(), page.getContent());
+        return new PostResponse(page.getTotalPages(), postDTOList);
+
+    }
+
+    public int getPostCount() {
+        List<Post> posts = postRepository.findByIsActiveAndModerationStatus(true, ModerationStatus.ACCEPTED);
+        return posts.size();
     }
 
     public Sort getSortMode(String mode) {
         switch(mode) {
             case "popular":
-                //return new Sort(Sort.Direction.DESC, "");
+
             case "best":
-                //return new Sort(Sort.Direction.DESC, "");
+
             case "early":
-                return new Sort(Sort.Direction.ASC, "time");
+                return Sort.by("time").ascending();
             default:
-                return new Sort(Sort.Direction.DESC, "time");
+                return Sort.by("time").descending();
         }
 
     }

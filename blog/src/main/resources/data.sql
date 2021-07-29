@@ -1,3 +1,10 @@
+insert into global_settings
+(code, name, value)
+values
+("MULTIUSER_MODE", "Многопользовательский режим", "NO"),
+("POST_PREMODERATION", "Премодерация постов", "YES"),
+("STATISTICS_IS_PUBLIC", "Показывать всем статистику блога", "YES");
+
 insert into users (name, email, password, is_moderator, reg_time)
 values ('moderator', 'mod@email.com', '123', 1, NOW());
 insert into users (name, email, password, is_moderator, reg_time)
@@ -46,3 +53,23 @@ values
 (1, 4, '2021-07-23 18:15:55', "комментарий3"),
 (1, 4, '2021-07-23 18:15:55', "комментарий4"),
 (1, 4, '2021-07-23 18:15:55', "комментарий5");
+
+insert into tags
+(name)
+values
+("java"),
+("hibernate"),
+("mySql"),
+("spring");
+
+insert into tag2post
+(tag_id, post_id)
+values
+(1, 4),
+(2, 4),
+(4, 4),
+(1, 7),
+(3, 7),
+(1, 5),
+(3, 5),
+(4, 5);

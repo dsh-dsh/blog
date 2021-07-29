@@ -1,12 +1,15 @@
 package main.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.Set;
+import java.util.List;
 
 @Data
+@EqualsAndHashCode(exclude = {"comments"})
 @Entity
 @Table(name = "posts")
 public class Post {
@@ -22,11 +25,11 @@ public class Post {
     @Column(nullable = false, columnDefinition="enum('NEW','ACCEPTED', 'DECLINED')")
     private ModerationStatus moderationStatus;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "moderator_id")
     private User moderatorId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -42,7 +45,16 @@ public class Post {
     @Column(nullable = false)
     private int viewCount;
 
+    @JsonIgnoreProperties("post")
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<PostComment> comments;
+    private List<PostComment> comments;
+
+    @JsonIgnoreProperties("post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostVote> votes;
+
+    @JsonIgnoreProperties("post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true) //fetch = FetchType.LAZY
+    private List<TagPost> tags;
 
 }

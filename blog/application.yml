@@ -1,11 +1,16 @@
 spring.datasource.url: jdbc:mysql://localhost:3306/blog?useSSL=false&amp&serverTimezone=UTC
 spring.datasource.username: root
 spring.datasource.password: testmysql
-spring.jpa.hibernate.ddl-auto: create-drop
+#spring.jpa.hibernate.ddl-auto: create-drop
+spring.jpa.hibernate.ddl-auto: none
 spring.jpa.show-sql: true
 server.port: 8081
 
-spring.datasource.initialization-mode: always
+#spring.datasource.initialization-mode: always
+spring.datasource.initialization-mode: never
+
+spring.data.web.pageable.page-parameter: offset
+spring.data.web.pageable.size-parameter: limit
 
 init.title: DevPub
 init.subtitle: Рассказы разработчиков

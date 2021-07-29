@@ -1,12 +1,11 @@
 package main.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import main.model.User;
 
-import javax.persistence.Column;
-import java.util.Date;
-
 @Data
+@NoArgsConstructor
 public class UserDTO {
 
     private Integer id;
