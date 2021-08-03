@@ -16,7 +16,7 @@ import java.util.List;
 public class PostMapper {
     private final ModelMapper modelMapper;
 
-    private Converter<Date, Long> timestampConvereter =
+    private Converter<Date, Long> timestampConverter =
             (date) -> (date.getSource().getTime() / 1000);
     private Converter<String, String> announceConverter =
             (text) -> (Jsoup.parse(text.getSource()).text())
@@ -31,7 +31,7 @@ public class PostMapper {
     public PostMapper() {
         this.modelMapper = new ModelMapper();
         modelMapper.createTypeMap(Post.class, PostDTO.class)
-                .addMappings(mapper -> mapper.using(timestampConvereter).map(Post::getTime, PostDTO::setTimestamp))
+                .addMappings(mapper -> mapper.using(timestampConverter).map(Post::getTime, PostDTO::setTimestamp))
                 .addMappings(mapper -> mapper.using(announceConverter).map(Post::getText, PostDTO::setAnnounce))
                 .addMappings(mapper -> mapper.using(commentsConverter).map(Post::getComments, PostDTO::setCommentCount))
                 .addMappings(mapper -> mapper.using(likesConverter).map(Post::getVotes, PostDTO::setLikeCount))

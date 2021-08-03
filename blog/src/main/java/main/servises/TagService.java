@@ -5,7 +5,7 @@ import main.dto.TagDTO;
 import main.exceptions.NoPostsException;
 import main.model.Tag;
 import main.repositories.TagRepository;
-import main.util.TagMapper;
+import main.mappers.TagMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

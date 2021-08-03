@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@EqualsAndHashCode(exclude = {"comments"})
+@EqualsAndHashCode(exclude = {"comments", "votes", "tags"})
 @Entity
 @Table(name = "posts")
 public class Post {
@@ -54,7 +54,7 @@ public class Post {
     private List<PostVote> votes;
 
     @JsonIgnoreProperties("post")
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true) //fetch = FetchType.LAZY
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TagPost> tags;
 
 }
