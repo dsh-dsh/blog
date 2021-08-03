@@ -1,4 +1,4 @@
-package main.util;
+package main.mappers;
 
 import lombok.Setter;
 import main.dto.TagDTO;
