@@ -2,11 +2,6 @@ package main.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import main.model.Post;
-import main.model.PostComment;
-import org.jsoup.Jsoup;
-
-import java.util.Set;
 
 @Data
 @NoArgsConstructor

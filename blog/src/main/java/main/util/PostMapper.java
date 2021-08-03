@@ -15,6 +15,7 @@ import java.util.List;
 @Component
 public class PostMapper {
     private final ModelMapper modelMapper;
+
     private Converter<Date, Long> timestampConvereter =
             (date) -> (date.getSource().getTime() / 1000);
     private Converter<String, String> announceConverter =

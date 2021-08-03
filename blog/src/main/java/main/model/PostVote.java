@@ -1,7 +1,6 @@
 package main.model;
 
 import lombok.Data;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -15,11 +14,11 @@ public class PostVote {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 

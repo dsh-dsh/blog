@@ -8,13 +8,10 @@ import main.repositories.PostRepository;
 import main.util.PostMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,44 +19,40 @@ public class PostService {
 
     @Autowired
     private PostRepository postRepository;
-
     @Autowired
     private PostMapper postMapper;
 
-    public PostResponse getPosts(Map<String, String> parameters) {
+    public PostResponse getPosts(String mode, Pageable pageable) {
 
-        int offset = Integer.parseInt(parameters.getOrDefault("offset", "0"));
-        int limit = Integer.parseInt(parameters.getOrDefault("limit", "10"));
-        String mode = parameters.getOrDefault("mode", "recent");
+        Page<Post> page;
+        if (mode.equals("popular")) {
+            page = postRepository.findOrderByCommentsCount(pageable);
 
-        Sort sort = getSortMode(mode);
-        Pageable pageable = PageRequest.of(offset, limit, sort);
+        } else if (mode.equals("best")) {
+            page = postRepository.findOrderByLikes(pageable);
 
-        Page<Post> page = postRepository.findByIsActiveAndModerationStatus(true, ModerationStatus.ACCEPTED, pageable);
-        List<Post> posts = page.getContent();
-        List<PostDTO> postDTOList = posts.stream().map(postMapper::mapToDTO).collect(Collectors.toList());
+        } else if (mode.equals("early")){
+            page = postRepository.findByIsActiveAndModerationStatusOrderByTimeAsc(
+                    true,
+                    ModerationStatus.ACCEPTED,
+                    pageable);
+
+        } else {
+            page = postRepository.findByIsActiveAndModerationStatusOrderByTimeDesc(
+                    true,
+                    ModerationStatus.ACCEPTED,
+                    pageable);
+
+        }
+        List<PostDTO> postDTOList = page.getContent().stream()
+                .map(postMapper::mapToDTO).collect(Collectors.toList());
 
         return new PostResponse(page.getTotalPages(), postDTOList);
 
     }
 
     public int getPostCount() {
-        List<Post> posts = postRepository.findByIsActiveAndModerationStatus(true, ModerationStatus.ACCEPTED);
-        return posts.size();
-    }
-
-    public Sort getSortMode(String mode) {
-        switch(mode) {
-            case "popular":
-
-            case "best":
-
-            case "early":
-                return Sort.by("time").ascending();
-            default:
-                return Sort.by("time").descending();
-        }
-
+        return postRepository.findByIsActiveAndModerationStatusCount();
     }
 
 }
