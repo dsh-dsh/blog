@@ -1,16 +1,18 @@
 package main.controllers;
 
 import main.api.responses.PostResponse;
-import main.api.responses.PostResponseSingle;
 import main.dto.PostDTOSingle;
+import main.exceptions.NoSuchPostException;
+import main.model.ModerationStatus;
+import main.model.Post;
+import main.repositories.PostRepository;
 import main.servises.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
-
 import java.text.ParseException;
-import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/post")
@@ -18,9 +20,23 @@ public class ApiPostController {
 
     @Autowired
     private PostService postService;
+    @Autowired
+    private PostRepository postRepository;
+
+    @GetMapping("/aaa")
+    public ResponseEntity<List<Post>> getPosts111(
+            @RequestParam String mode,
+            Pageable pageable) {
+
+        List<Post> posts = postRepository.findByIsActiveAndModerationStatusOrderByTime(true, ModerationStatus.ACCEPTED, pageable);
+        return ResponseEntity.ok(posts);
+
+    }
 
     @GetMapping
-    public ResponseEntity<PostResponse> getPosts(@RequestParam String mode, Pageable pageable) {
+    public ResponseEntity<PostResponse> getPosts(
+            @RequestParam String mode,
+            Pageable pageable) {
 
         PostResponse postResponse = postService.getPosts(mode, pageable);
         return ResponseEntity.ok(postResponse);
@@ -28,42 +44,52 @@ public class ApiPostController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<PostResponse> search(@RequestParam Map<String, String> requestParam) {
+    public ResponseEntity<PostResponse> search(
+            @RequestParam String query,
+            Pageable pageable) {
 
-        String query = requestParam.get("query").trim();
-
-        if(query.equals("")) {
-            System.out.println("general");
-            return general(requestParam);
+        if(query.trim().equals("")) {
+            return getPosts("", pageable);
         } else {
-            PostResponse postResponse = postService.searchPosts(requestParam);
+            PostResponse postResponse = postService.searchPosts(query, pageable);
             return ResponseEntity.ok(postResponse);
         }
 
     }
 
     @GetMapping("/byDate")
-    public ResponseEntity<PostResponse> getByDate(@RequestParam Map<String, String> requestParam) throws ParseException {
-        PostResponse postResponse = postService.getPostsByDate(requestParam);
+    public ResponseEntity<PostResponse> getByDate(
+            @RequestParam(name = "date") String requestDate,
+            Pageable pageable) throws ParseException {
+
+        PostResponse postResponse = postService.getPostsByDate(requestDate, pageable);
         return ResponseEntity.ok(postResponse);
     }
 
     @GetMapping("/byTag")
-    public ResponseEntity<PostResponse> getByTag(@RequestParam Map<String, String> requestParam) {
-        PostResponse postResponse = postService.getPostsByTag(requestParam);
+    public ResponseEntity<PostResponse> getByTag(
+            @RequestParam String tag,
+            Pageable pageable) {
+
+        PostResponse postResponse = postService.getPostsByTag(tag, pageable);
         return ResponseEntity.ok(postResponse);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PostDTOSingle> getById(@PathVariable int id) {
-
-        System.out.println("--ApiPostController---------------------id = " + id);
+    public ResponseEntity<PostDTOSingle> getById(@PathVariable int id) throws Exception {
 
         PostDTOSingle postDTOSingle = postService.getPostsById(id);
-        if(postDTOSingle == null) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(postDTOSingle);
+
+    }
+
+    @GetMapping("/moderation")
+    public ResponseEntity<PostResponse> getPostModerationList(
+            @RequestParam ModerationStatus status,
+            Pageable pageable) {
+
+        PostResponse postResponse = postService.getPostsForModeration(status, pageable);
+        return ResponseEntity.ok(postResponse);
     }
 
 }

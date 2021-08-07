@@ -2,7 +2,6 @@ package main.api.responses;
 
 import lombok.Data;
 import main.dto.PostDTO;
-
 import java.util.List;
 
 @Data

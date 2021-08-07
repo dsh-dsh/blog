@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS captcha_codes (
+CREATE TABLE captcha_codes (
   id INT AUTO_INCREMENT NOT NULL,
   time datetime NOT NULL,
   code TINYTEXT NOT NULL,
@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS captcha_codes (
   CONSTRAINT pk_captcha_codes PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS global_settings (
+CREATE TABLE global_settings (
   id INT AUTO_INCREMENT NOT NULL,
   code VARCHAR(255) NOT NULL,
   name VARCHAR(255) NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS global_settings (
   CONSTRAINT pk_global_settings PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS post_comments (
+CREATE TABLE post_comments (
   id INT AUTO_INCREMENT NOT NULL,
   parent_id INT NULL,
   post_id INT NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS post_comments (
   CONSTRAINT pk_post_comments PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS post_votes (
+CREATE TABLE post_votes (
   id INT AUTO_INCREMENT NOT NULL,
   user_id INT NOT NULL,
   post_id INT NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS post_votes (
   CONSTRAINT pk_post_votes PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS posts (
+CREATE TABLE posts (
   id INT AUTO_INCREMENT NOT NULL,
   is_active TINYINT NOT NULL,
   moderation_status ENUM('NEW', 'ACCEPTED', 'DECLINED') NOT NULL,
@@ -46,20 +46,20 @@ CREATE TABLE IF NOT EXISTS posts (
   CONSTRAINT pk_posts PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS tag2post (
+CREATE TABLE tag2post (
   id INT AUTO_INCREMENT NOT NULL,
   tag_id INT NULL,
   post_id INT NULL,
   CONSTRAINT pk_tag2post PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS tags (
+CREATE TABLE tags (
   id INT AUTO_INCREMENT NOT NULL,
   name VARCHAR(255) NOT NULL,
   CONSTRAINT pk_tags PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE users (
   id INT AUTO_INCREMENT NOT NULL,
   is_moderator TINYINT NOT NULL,
   reg_time datetime NOT NULL,

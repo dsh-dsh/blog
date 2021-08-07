@@ -1,12 +1,15 @@
 package main.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-
+import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.util.Date;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "users")
 public class User {
@@ -35,6 +38,4 @@ public class User {
 
     @Column(columnDefinition="text")
     private String photo;
-
-
 }

@@ -1,7 +1,6 @@
 package main.api.responses;
 
 import lombok.Data;
-
 import java.util.Map;
 
 @Data

@@ -1,5 +1,6 @@
 package main.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import main.model.User;
@@ -11,8 +12,6 @@ public class UserDTO {
     private Integer id;
     private String name;
 
-    public UserDTO(User user) {
-        this.id = user.getId();
-        this.name = user.getName();
-    }
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String photo;
 }

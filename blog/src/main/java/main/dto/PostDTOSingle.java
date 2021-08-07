@@ -20,5 +20,5 @@ public class PostDTOSingle {
     private int commentCount;
     private int viewCount;
     private List<CommentDTO> comments;
-    private List<Tag> tags;
+    private String[] tags;
 }

@@ -8,7 +8,7 @@ import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.Set;
 
 @Component
 public class TagMapper {
@@ -19,7 +19,7 @@ public class TagMapper {
     @Setter
     private double normKoeff;
 
-    private Converter<List<Post>, Double> weightConverter =
+    private Converter<Set<Post>, Double> weightConverter =
             (posts) -> (posts.getSource().size() / (double) postCount) * normKoeff;
 
     public TagMapper() {

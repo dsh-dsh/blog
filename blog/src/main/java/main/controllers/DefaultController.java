@@ -10,4 +10,5 @@ public class DefaultController {
     public String index() {
         return "index";
     }
+
 }

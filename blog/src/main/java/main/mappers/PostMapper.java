@@ -1,4 +1,4 @@
-package main.util;
+package main.mappers;
 
 import main.dto.PostDTO;
 import main.model.Post;
@@ -14,6 +14,7 @@ import java.util.List;
 
 @Component
 public class PostMapper {
+
     private final ModelMapper modelMapper;
 
     private Converter<Date, Long> timestampConverter =

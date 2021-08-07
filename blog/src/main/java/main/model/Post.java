@@ -3,13 +3,13 @@ package main.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
+import lombok.ToString;
 import javax.persistence.*;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Data
-@EqualsAndHashCode(exclude = {"comments", "votes", "tags"})
+@EqualsAndHashCode(of = {"id"})
+@ToString(of = {"id", "time", "title"})
 @Entity
 @Table(name = "posts")
 public class Post {
@@ -47,14 +47,14 @@ public class Post {
 
     @JsonIgnoreProperties("post")
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostComment> comments;
+    private List<PostComment> comments = new ArrayList<>();
 
     @JsonIgnoreProperties("post")
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostVote> votes;
+    private List<PostVote> votes = new ArrayList<>();
 
     @JsonIgnoreProperties("post")
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TagPost> tags;
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    private Set<TagPost> tags  = new HashSet<>();
 
 }

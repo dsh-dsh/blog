@@ -1,15 +1,21 @@
 package main.repositories;
 
-import main.dto.CalendarDTO;
 import main.model.ModerationStatus;
 import main.model.Post;
-import main.model.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 public interface PostRepository extends CrudRepository<Post, Integer> {
+
+    List<Post> findByIsActiveAndModerationStatusOrderByTime(
+            boolean isActive,
+            ModerationStatus moderationStatus,
+            Pageable pageable);
 
     Page<Post> findByIsActiveAndModerationStatusOrderByTimeDesc(
             boolean isActive,
@@ -21,9 +27,7 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
             ModerationStatus moderationStatus,
             Pageable pageable);
 
-    @Query("SELECT COUNT(post) FROM Post post " +
-            "WHERE post.isActive = true AND post.moderationStatus = 'ACCEPTED'")
-    int findByIsActiveAndModerationStatusCount();
+    int countByIsActiveAndModerationStatus(boolean isActive, ModerationStatus moderationStatus);
 
     @Query("SELECT post FROM Post AS post " +
             "LEFT JOIN post.comments AS comments " +
@@ -46,17 +50,13 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
 
     @Query("SELECT p " +
             "FROM Post p " +
-            "WHERE p.isActive = :isActive " +
-            "AND p.moderationStatus = :moderationStatus " +
+            "WHERE p.isActive = true " +
+            "AND p.moderationStatus = 'ACCEPTED' " +
             "AND DATE(p.time) = :date")
-    Page<Post> findByTime(
-            boolean isActive,
-            ModerationStatus moderationStatus,
-            Date date,
-            Pageable pageable);
+    Page<Post> findByTime(Date date, Pageable pageable);
 
-    @Query("SELECT p FROM Post p JOIN p.tags tp JOIN tp.tag t WHERE t.name = :tagName")  //SELECT a FROM Author a JOIN FETCH a.books WHERE a.id = 1
-    Page<Post> findByTag(String tagName, Pageable pageable);
+    @Query("SELECT post FROM Post AS post JOIN post.tags AS tagPost JOIN tagPost.tag AS tag WHERE tag.name = :tagName")
+    Page<Post> findByTags(String tagName, Pageable pageable);
 
-    Post getById(int id);
+    Optional<Post> getById(int id);
 }
