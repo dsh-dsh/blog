@@ -9,8 +9,11 @@ import main.repositories.PostRepository;
 import main.servises.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+
+import java.security.Principal;
 import java.text.ParseException;
 import java.util.List;
 
@@ -22,16 +25,6 @@ public class ApiPostController {
     private PostService postService;
     @Autowired
     private PostRepository postRepository;
-
-    @GetMapping("/aaa")
-    public ResponseEntity<List<Post>> getPosts111(
-            @RequestParam String mode,
-            Pageable pageable) {
-
-        List<Post> posts = postRepository.findByIsActiveAndModerationStatusOrderByTime(true, ModerationStatus.ACCEPTED, pageable);
-        return ResponseEntity.ok(posts);
-
-    }
 
     @GetMapping
     public ResponseEntity<PostResponse> getPosts(
@@ -84,11 +77,21 @@ public class ApiPostController {
     }
 
     @GetMapping("/moderation")
+    @PreAuthorize("hasAuthority('user:moderate')")
     public ResponseEntity<PostResponse> getPostModerationList(
             @RequestParam ModerationStatus status,
             Pageable pageable) {
 
         PostResponse postResponse = postService.getPostsForModeration(status, pageable);
+        return ResponseEntity.ok(postResponse);
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<PostResponse> myPosts(
+            @RequestParam String status,
+            Pageable pageable) {
+
+        PostResponse postResponse = postService.getMyPosts(status, pageable);
         return ResponseEntity.ok(postResponse);
     }
 

@@ -1,5 +1,6 @@
 package main.servises;
 
+import main.api.responses.LoginResponse;
 import main.api.responses.PostResponse;
 import main.dto.PostDTO;
 import main.dto.PostDTOSingle;
@@ -7,14 +8,21 @@ import main.exceptions.NoSuchPostException;
 import main.mappers.PostMapperSingle;
 import main.model.ModerationStatus;
 import main.model.Post;
+import main.model.User;
 import main.repositories.PostRepository;
 import main.mappers.PostMapper;
+import main.security.SecurityUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.security.Principal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,7 +32,8 @@ public class PostService {
 
     @Autowired
     private PostRepository postRepository;
-
+    @Autowired
+    private UserService userService;
     @Autowired
     private PostMapper postMapper;
     @Autowired
@@ -33,25 +42,23 @@ public class PostService {
     public PostResponse getPosts(String mode, Pageable pageable) {
 
         Page<Post> page;
-        if (mode.equals("popular")) {
-            page = postRepository.findOrderByCommentsCount(pageable);
-
-        } else if (mode.equals("best")) {
-            page = postRepository.findOrderByLikes(pageable);
-
-        } else if (mode.equals("early")){
-            page = postRepository.findByIsActiveAndModerationStatusOrderByTimeAsc(
-                    true,
-                    ModerationStatus.ACCEPTED,
-                    pageable);
-
-        } else {
-            page = postRepository.findByIsActiveAndModerationStatusOrderByTimeDesc(
-                    true,
-                    ModerationStatus.ACCEPTED,
-                    pageable);
-
+        switch (mode) {
+            case "popular":
+                page = postRepository.findOrderByCommentsCount(pageable);
+                break;
+            case "best":
+                page = postRepository.findOrderByLikes(pageable);
+                break;
+            case "early":
+                page = postRepository.findByIsActiveAndModerationStatusOrderByTimeAsc(
+                        true, ModerationStatus.ACCEPTED, pageable);
+                break;
+            default:
+                page = postRepository.findByIsActiveAndModerationStatusOrderByTimeDesc(
+                        true, ModerationStatus.ACCEPTED, pageable);
+                break;
         }
+
         List<PostDTO> postDTOList = page.getContent().stream()
                 .map(postMapper::mapToDTO).collect(Collectors.toList());
 
@@ -92,8 +99,7 @@ public class PostService {
 
     public PostDTOSingle getPostsById(int id) throws Exception {
 
-        Post post = postRepository.getById(id).orElseThrow(() -> new NoSuchPostException(id));
-        //System.out.println(post);
+        Post post = postRepository.findById(id).orElseThrow(() -> new NoSuchPostException(id));
         return postMapperSingle.mapToDTO(post);
 
     }
@@ -108,6 +114,42 @@ public class PostService {
                 true,
                 status,
                 pageable);
+
+        List<PostDTO> postDTOList = page.getContent().stream()
+                .map(postMapper::mapToDTO).collect(Collectors.toList());
+
+        return new PostResponse(page.getTotalPages(), postDTOList);
+    }
+
+    public PostResponse getMyPosts(String status, Pageable pageable) {
+
+        boolean isActive = false;
+        ModerationStatus moderationStatus = ModerationStatus.NEW;
+        User user;
+
+        SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (securityUser != null) {
+            user = userService.getUserByEmail(securityUser.getEmail());
+        } else {
+            return new PostResponse(0, new ArrayList<>());
+        }
+
+        switch (status) {
+            case "pending":
+                isActive = true;
+                break;
+            case "declined":
+                isActive = true;
+                moderationStatus = ModerationStatus.DECLINED;
+                break;
+            case "published":
+                isActive = true;
+                moderationStatus = ModerationStatus.ACCEPTED;
+                break;
+        }
+
+        Page<Post> page = postRepository.findByIsActiveAndModerationStatusAndUserOrderByTimeDesc(isActive, moderationStatus, user, pageable);
 
         List<PostDTO> postDTOList = page.getContent().stream()
                 .map(postMapper::mapToDTO).collect(Collectors.toList());

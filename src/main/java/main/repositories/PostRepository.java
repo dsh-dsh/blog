@@ -2,6 +2,7 @@ package main.repositories;
 
 import main.model.ModerationStatus;
 import main.model.Post;
+import main.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -27,6 +28,12 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
             ModerationStatus moderationStatus,
             Pageable pageable);
 
+    Page<Post> findByIsActiveAndModerationStatusAndUserOrderByTimeDesc(
+            boolean isActive,
+            ModerationStatus moderationStatus,
+            User user,
+            Pageable pageable);
+
     int countByIsActiveAndModerationStatus(boolean isActive, ModerationStatus moderationStatus);
 
     @Query("SELECT post FROM Post AS post " +
@@ -43,6 +50,7 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
             "ORDER BY SUM(CASE WHEN votes.value > 0 THEN 1 ELSE 0 END) DESC, " +
             "SUM(CASE WHEN votes.value < 0 THEN 1 ELSE 0 END) ASC")
     Page<Post> findOrderByLikes(Pageable pageable);
+
     Page<Post> findByTitleContainingOrTextContaining(
             String title,
             String text,
@@ -58,5 +66,4 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
     @Query("SELECT post FROM Post AS post JOIN post.tags AS tagPost JOIN tagPost.tag AS tag WHERE tag.name = :tagName")
     Page<Post> findByTags(String tagName, Pageable pageable);
 
-    Optional<Post> getById(int id);
 }

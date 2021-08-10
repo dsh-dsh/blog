@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.Map;
 
 @Data
-public class UserResponse {
+public class RegisterResponse {
 
     private boolean result;
 
