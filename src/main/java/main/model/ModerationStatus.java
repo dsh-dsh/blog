@@ -1,5 +1,6 @@
 package main.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
@@ -7,8 +8,8 @@ import lombok.Getter;
 public enum ModerationStatus {
     @JsonProperty("new")
     NEW,
-    @JsonProperty("accepted")
+    @JsonAlias({"accepted", "accept"})
     ACCEPTED,
-    @JsonProperty("declined")
+    @JsonAlias({"declined", "decline"})
     DECLINED
 }

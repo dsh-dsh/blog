@@ -1,9 +1,10 @@
 package main.exceptions;
 
-import lombok.Data;
+import main.Constants;
 
 public class NoSuchPostException extends RuntimeException{
     public NoSuchPostException(Integer id) {
-        super("Post with id " + id + " is not found");
+        super(String.format(Constants.ID_POST_NOT_FOUND, id));
     }
+
 }

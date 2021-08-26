@@ -1,10 +1,11 @@
 package main.controllers;
 
+import main.api.requests.LikeRequest;
+import main.api.requests.PostRequest;
 import main.api.responses.PostResponse;
+import main.api.responses.ResultResponse;
 import main.dto.PostDTOSingle;
-import main.exceptions.NoSuchPostException;
 import main.model.ModerationStatus;
-import main.model.Post;
 import main.repositories.PostRepository;
 import main.servises.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +14,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
-import java.security.Principal;
+import javax.validation.Valid;
 import java.text.ParseException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/post")
@@ -87,12 +87,57 @@ public class ApiPostController {
     }
 
     @GetMapping("/my")
+    @PreAuthorize("hasAuthority('user:write')")
     public ResponseEntity<PostResponse> myPosts(
             @RequestParam String status,
             Pageable pageable) {
 
         PostResponse postResponse = postService.getMyPosts(status, pageable);
         return ResponseEntity.ok(postResponse);
+    }
+
+    @PostMapping()
+    @PreAuthorize("hasAuthority('user:write')")
+    public ResponseEntity<ResultResponse> newPost(
+            @RequestBody @Valid PostRequest postRequest) {
+
+        postService.savePost(postRequest);
+
+        return ResponseEntity.ok(new ResultResponse());
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('user:write')")
+    public ResponseEntity<ResultResponse> changePost(
+            @RequestBody @Valid PostRequest postRequest,
+            @PathVariable int id) throws Exception{
+
+        postRequest.setId(id);
+        postService.updatePost(postRequest);
+
+        return ResponseEntity.ok(new ResultResponse());
+    }
+
+    @PostMapping("/like")
+    @PreAuthorize("hasAuthority('user:write')")
+    public ResponseEntity<ResultResponse> like(
+            @RequestBody LikeRequest request) {
+
+        ResultResponse resultResponse = new ResultResponse();
+        resultResponse.setResult(postService.like(request.getPostId(), 1));
+
+        return ResponseEntity.ok(resultResponse);
+    }
+
+    @PostMapping("/dislike")
+    @PreAuthorize("hasAuthority('user:write')")
+    public ResponseEntity<ResultResponse> dislike(
+            @RequestBody LikeRequest request) {
+
+        ResultResponse resultResponse = new ResultResponse();
+        resultResponse.setResult(postService.like(request.getPostId(), -1));
+
+        return ResponseEntity.ok(resultResponse);
     }
 
 }

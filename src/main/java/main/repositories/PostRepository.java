@@ -2,14 +2,19 @@ package main.repositories;
 
 import main.model.ModerationStatus;
 import main.model.Post;
+import main.model.TagPost;
 import main.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface PostRepository extends CrudRepository<Post, Integer> {
 
@@ -66,4 +71,10 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
     @Query("SELECT post FROM Post AS post JOIN post.tags AS tagPost JOIN tagPost.tag AS tag WHERE tag.name = :tagName")
     Page<Post> findByTags(String tagName, Pageable pageable);
 
+    @Modifying
+    @Transactional
+    @Query("UPDATE Post p " +
+            "SET p.isActive = :isActive, p.time = :time, p.title = :title, p.text = :text, p.tags = :tags " +
+            "WHERE p.id = :id")
+    void updatePost(int id, boolean isActive, Date time, String title, String text, Set<TagPost> tags);
 }

@@ -1,3 +1,6 @@
+spring.mvc.throw-exception-if-no-handler-found: true
+spring.resources.add-mappings: true
+
 spring.datasource.url: jdbc:mysql://localhost:3306/blog
 spring.datasource.username: root
 spring.datasource.password: testmysql
@@ -20,3 +23,24 @@ init.copyright: Дмитрий Сергеев
 init.copyrightFrom: 2005
 
 time.expired.mc: 3600000
+restore.code.expired.hours: 48
+
+#spring.servlet.multipart.max-file-size: 256KB
+#spring.servlet.multipart.max-request-size: 256KB
+
+resources.path: ./src/main/resources
+upload.path: /upload
+avatar.path: /avatars
+max.file.size: 256000
+max.photo.size: 5000
+
+spring.mail.host: smtp.inbox.ru
+spring.mail.fromEmail: daniilshipilov@inbox.ru
+spring.mail.password: Hp9Bd47dqT
+spring.mail.port: 465
+spring.mail.protocol: smtps
+spring.mail.properties.mail.smtp.auth: true
+spring.mail.debug: false
+
+root.url.path: "http://localhost:8081"
+

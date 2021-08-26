@@ -2,7 +2,6 @@ package main.model.util;
 
 public enum Permission {
 
-    READ("user:read"),
     WRITE("user:write"),
     MODERATE("user:moderate");
 

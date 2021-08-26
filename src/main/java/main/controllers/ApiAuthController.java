@@ -3,30 +3,30 @@ package main.controllers;
 import main.api.requests.LoginRequest;
 import main.api.requests.UserRequest;
 import main.api.responses.LoginResponse;
-import main.api.responses.RegisterResponse;
+import main.api.responses.ResultResponse;
 import main.dto.CaptchaDTO;
-import main.dto.UserDTO;
 import main.mappers.UserMapper;
 import main.model.User;
 import main.servises.CaptchaService;
 import main.servises.PostService;
+import main.servises.SettingsService;
 import main.servises.UserService;
+import main.validation.OnCreate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.security.Principal;
 
+
+@Validated
 @RestController
 @RequestMapping("/api/auth")
 public class ApiAuthController {
-
-
 
     @Autowired
     private CaptchaService captchaService;
@@ -36,6 +36,8 @@ public class ApiAuthController {
     private PostService postService;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private SettingsService settingsService;
 
     @GetMapping("/check")
     public ResponseEntity<LoginResponse> check(Principal principal) {
@@ -54,15 +56,21 @@ public class ApiAuthController {
     public ResponseEntity<CaptchaDTO> captcha() {
 
         CaptchaDTO captchaDTO = captchaService.getNewCaptcha();
+
         return ResponseEntity.ok(captchaDTO);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponse> register(
-            @RequestBody UserRequest userRequest) {
+    @Validated(OnCreate.class)
+    public ResponseEntity<ResultResponse> register(
+            @RequestBody @Valid UserRequest userRequest) {
 
-        RegisterResponse registerResponse = userService.saveNewUser(userRequest);
-        return ResponseEntity.ok(registerResponse);
+        if(!settingsService.getGlobalSettings().isMultiuserMode()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        userService.saveNewUser(userRequest);
+        return ResponseEntity.ok(new ResultResponse());
 
     }
 
@@ -78,12 +86,24 @@ public class ApiAuthController {
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<LoginResponse> logout(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<LoginResponse> logout(
+            HttpServletRequest request, HttpServletResponse response) {
 
         userService.logout(request, response);
 
         LoginResponse loginResponse = new LoginResponse(true, null);
         return ResponseEntity.ok(loginResponse);
+    }
+
+    @PostMapping("/restore")
+    public ResponseEntity<ResultResponse> restorePassword(
+            @RequestBody UserRequest request) {
+
+        String email = request.getEmail();
+        ResultResponse resultResponse = new ResultResponse();
+        resultResponse.setResult(userService.sendRestoreEmail(email));
+
+        return ResponseEntity.ok(resultResponse);
     }
 
 }

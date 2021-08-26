@@ -1,30 +1,38 @@
 package main.servises;
 
-import main.api.responses.LoginResponse;
+import main.Constants;
+import main.api.requests.PostRequest;
 import main.api.responses.PostResponse;
 import main.dto.PostDTO;
 import main.dto.PostDTOSingle;
 import main.exceptions.NoSuchPostException;
+import main.exceptions.UnableToUploadFileException;
 import main.mappers.PostMapperSingle;
-import main.model.ModerationStatus;
-import main.model.Post;
-import main.model.User;
+import main.mappers.PostRequestMapper;
+import main.model.*;
 import main.repositories.PostRepository;
 import main.mappers.PostMapper;
 import main.security.SecurityUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.security.Principal;
+import javax.servlet.ServletContext;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,9 +43,21 @@ public class PostService {
     @Autowired
     private UserService userService;
     @Autowired
+    private TagService tagService;
+    @Autowired
     private PostMapper postMapper;
     @Autowired
     private PostMapperSingle postMapperSingle;
+    @Autowired
+    private PostRequestMapper postRequestMapper;
+
+    @Value("${resources.path}")
+    private String resourcesPathName;
+
+    @Value("${max.file.size}")
+    private int maxFileSize;
+
+
 
     public PostResponse getPosts(String mode, Pageable pageable) {
 
@@ -97,9 +117,16 @@ public class PostService {
 
     }
 
-    public PostDTOSingle getPostsById(int id) throws Exception {
+    public PostDTOSingle getPostsById(int id) {
 
         Post post = postRepository.findById(id).orElseThrow(() -> new NoSuchPostException(id));
+
+        User user = userService.getUserFromSecurityContext();
+        if(!user.isModerator() && !user.equals(post.getUser())) {
+            post.setViewCount(post.getViewCount() + 1);
+            postRepository.save(post);
+        }
+
         return postMapperSingle.mapToDTO(post);
 
     }
@@ -155,5 +182,122 @@ public class PostService {
                 .map(postMapper::mapToDTO).collect(Collectors.toList());
 
         return new PostResponse(page.getTotalPages(), postDTOList);
+    }
+
+    public void savePost(PostRequest postRequest) {
+
+        Post post = postRequestMapper.mapToPost(postRequest);
+
+        if(post.getTime().getTime() < new Date().getTime()) {
+            post.setTime(new Date());
+        }
+        post.setModerationStatus(ModerationStatus.NEW);
+        post.setUser(userService.getUserFromSecurityContext());
+
+        List<Tag> tags = tagService.addIfNotExists(postRequest.getTags());
+        Set<TagPost> tagPosts = tags.stream()
+                .map(tag -> new TagPost(tag, post))
+                .collect(Collectors.toSet());
+        post.setTags(tagPosts);
+
+        postRepository.save(post);
+
+    }
+
+    public void updatePost(PostRequest postRequest) {
+
+        int id = postRequest.getId();
+        Post post = postRepository.findById(id).orElseThrow(() -> new NoSuchPostException(id));
+
+        long timestamp = postRequest.getTimestamp()*1000;
+        if(post.getTime().getTime() < timestamp) {
+            post.setTime(new Date(timestamp));
+        }
+        post.setActive(postRequest.isActive());
+        post.setTitle(postRequest.getTitle());
+        post.setText(postRequest.getText());
+
+
+        List<Tag> tags = tagService.addIfNotExists(postRequest.getTags());
+        Set<TagPost> newTagPosts = tags.stream()
+                        .map(tag -> new TagPost(tag, post))
+                        .collect(Collectors.toSet());
+        post.getTags().clear();
+        post.getTags().addAll(newTagPosts);
+
+        postRepository.save(post);
+    }
+
+    public String uploadFile(MultipartFile image, String uploadPathName) throws Exception{
+
+        if (!image.isEmpty()) {
+            if(image.getSize() > maxFileSize) {
+                throw new UnableToUploadFileException(Constants.FILE_SIZE_ERROR);
+            }
+            if(!(image.getContentType().equals("image/jpeg") || image.getContentType().equals("image/png"))) {
+                throw new UnableToUploadFileException(Constants.WRONG_IMAGE_TYPE);
+            }
+
+            String uploadFileName = makeImagePath(image.getOriginalFilename(), uploadPathName);
+            Path uploadFilePath = Paths.get(resourcesPathName + uploadPathName + uploadFileName);
+
+            try(InputStream inputStream = image.getInputStream()) {
+                Files.copy(inputStream, uploadFilePath, StandardCopyOption.REPLACE_EXISTING);
+                return uploadPathName + uploadFileName;
+
+            } catch (Exception e) {
+                throw new UnableToUploadFileException(Constants.FILE_UPLOAD_ERROR);
+            }
+        } else {
+            throw new UnableToUploadFileException(Constants.FILE_MISSING_ERROR);
+        }
+    }
+
+    public String makeImagePath(String originName, String uploadPathName) {
+        String extension = originName.substring(originName.lastIndexOf("."));
+        String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+        String newDirName = "/" + uuid.substring(0, 3) + "/" + uuid.substring(3, 6) + "/" + uuid.substring(6, 9);
+        try {
+            System.out.println(Files.createDirectories(Paths.get(resourcesPathName + uploadPathName + newDirName)));
+            return newDirName + "/" + uuid.substring(9, 18) + extension;
+        } catch(IOException ex) {
+            throw new UnableToUploadFileException(Constants.FILE_UPLOAD_ERROR);
+        }
+    }
+
+    public void moderatePost(int postId, ModerationStatus moderationStatus) {
+        User moderator = userService.getUserFromSecurityContext();
+        Post post = postRepository.findById(postId).orElseThrow(() -> new NoSuchPostException(postId));
+        post.setModeratorId(moderator);
+        post.setModerationStatus(moderationStatus);
+        postRepository.save(post);
+    }
+
+    public boolean like(int postId, int newValue) {
+
+        User user = userService.getUserFromSecurityContext();
+        Post post = postRepository.findById(postId).orElseThrow(() -> new NoSuchPostException(postId));
+
+        System.out.println(user);
+
+        List<PostVote> votes = post.getVotes();
+        PostVote vote = votes.stream()
+                .filter(v -> v.getUser() == user)
+                .findAny()
+                .orElse(new PostVote(0, user, post, new Date(), newValue));
+
+        if(vote.getId() == 0) {
+            post.getVotes().add(vote);
+        } else {
+            if(vote.getValue() == newValue) {
+                return false;
+            } else {
+                vote.setValue(newValue);
+                vote.setTime(new Date());
+            }
+        }
+
+        postRepository.save(post);
+        return true;
     }
 }

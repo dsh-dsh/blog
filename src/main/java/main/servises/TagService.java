@@ -14,8 +14,6 @@ import java.util.stream.Collectors;
 @Service
 public class TagService {
 
-    private int postCount;
-
     @Autowired
     private TagRepository tagRepository;
 
@@ -25,11 +23,11 @@ public class TagService {
     @Autowired
     private TagMapper tagMapper;
 
-    public TagResponse getTags() {
+    public TagResponse getTagResponse() {
 
         List<Tag> tagList = tagRepository.findAll();
         List<TagDTO> tags = new ArrayList<>();
-        postCount = postService.getPostCount(true, ModerationStatus.ACCEPTED);
+        int postCount = postService.getPostCount(true, ModerationStatus.ACCEPTED);
 
         try{
             int maxPosts = tagList.stream()
@@ -51,6 +49,32 @@ public class TagService {
 
         return new TagResponse(tags);
 
+    }
+
+    public List<Tag> addIfNotExists(String[] tags) {
+
+        List<String> tagNames = Arrays.asList(tags);
+        List<Tag> tagsInDB = tagRepository.findByNameIn(tagNames);
+
+        List<String> existingTagNames = tagsInDB.stream().map(Tag::getName).collect(Collectors.toList());
+
+        //tagNames.stream().filter(tagName -> !existingTagNames.contains(tagName));
+
+        List<Tag> newTags = tagNames.stream()
+                .filter(tagName -> !existingTagNames.contains(tagName))
+                .map(this::addNewTag)
+                .collect(Collectors.toList());
+
+        tagsInDB.addAll(newTags);
+        return tagsInDB;
+
+    }
+
+    public Tag addNewTag(String name) {
+        Tag tag = new Tag();
+        tag.setName(name);
+        tagRepository.save(tag);
+        return tag;
     }
 
 

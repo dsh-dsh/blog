@@ -28,7 +28,7 @@ public class PostMapperSingle {
             (votes) -> Math.toIntExact(votes.getSource().stream().filter(i -> i.getValue() > 0).count());
     private Converter<List<PostVote>, Integer> dislikesConverter =
             (votes) -> Math.toIntExact(votes.getSource().stream().filter(i -> i.getValue() < 0).count());
-    private Converter<List<PostComment>, List<CommentDTO>> commentsConverter =
+    private Converter<List<Comment>, List<CommentDTO>> commentsConverter =
             (comments) -> comments.getSource().stream().map(commentMapper::mapToDTO).collect(Collectors.toList());
     private Converter<Set<TagPost>, String[]> tagsConverter =
             (tags) -> tags.getSource().stream().map(TagPost::getTag).map(Tag::getName).toArray(String[]::new);

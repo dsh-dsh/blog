@@ -1,5 +1,6 @@
 package main.security;
 
+import main.Constants;
 import main.mappers.UserSecurityMapper;
 import main.model.User;
 import main.repositories.UserRepository;
@@ -22,7 +23,7 @@ public class MyUserDetailService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("user " + email + " not found"));
+                .orElseThrow(() -> new UsernameNotFoundException(String.format(Constants.EMAIL_USER_NOT_FOUND, email)));
 
         return userSecurityMapper.mapToSecurityUser(user);
     }

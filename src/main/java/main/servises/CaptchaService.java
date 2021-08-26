@@ -59,10 +59,6 @@ public class CaptchaService {
 
     public byte[] makeCaptchaByteArray(String text) {
 
-//        // при отправке размера 100*35 как в задании каптча становится менее читаемой
-//        // тем более, что на фронтенде ее преобразуют в размер 85*30
-//        Painter painter = new Painter(100, 35, null, null, null, null);
-//        Cage cage = new Cage(painter, null, null, null, null, null, null);
         Cage cage = new GCage();
         return cage.draw(text);
 

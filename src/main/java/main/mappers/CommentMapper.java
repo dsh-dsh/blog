@@ -1,7 +1,7 @@
 package main.mappers;
 
 import main.dto.CommentDTO;
-import main.model.PostComment;
+import main.model.Comment;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
@@ -17,12 +17,12 @@ public class CommentMapper {
 
     public CommentMapper() {
         this.modelMapper = new ModelMapper();
-        modelMapper.createTypeMap(PostComment.class, CommentDTO.class)
+        modelMapper.createTypeMap(Comment.class, CommentDTO.class)
                 .addMappings(mapper -> mapper.using(timestampConverter)
-                        .map(PostComment::getTime, CommentDTO::setTimestamp));
+                        .map(Comment::getTime, CommentDTO::setTimestamp));
     }
 
-    public CommentDTO mapToDTO(PostComment comment) {
+    public CommentDTO mapToDTO(Comment comment) {
         return modelMapper.map(comment, CommentDTO.class);
     }
 

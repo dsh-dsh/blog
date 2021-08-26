@@ -1,28 +1,30 @@
 package main.servises;
 
+import main.Constants;
 import main.api.requests.LoginRequest;
 import main.api.requests.UserRequest;
-import main.api.responses.RegisterResponse;
-import main.dto.UserDTO;
-import main.mappers.UserMapper;
+import main.exceptions.NoSuchUserException;
 import main.model.User;
 import main.repositories.UserRepository;
 import main.security.SecurityUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.mail.AuthenticationFailedException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -30,61 +32,35 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private CaptchaService captchaService;
-    @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
     private AuthenticationManager authenticationManager;
+    @Autowired
+    private PostService postService;
+    @Autowired
+    private EmailService emailService;
+
+    @Value("${avatar.path}")
+    private String avatarPathName;
+
+    @Value("${root.url.path}")
+    private String rootUrlPath;
 
 
-    public RegisterResponse saveNewUser(UserRequest userRequest
-    ) {
+    public void saveNewUser(UserRequest userRequest) {
 
-        RegisterResponse registerResponse = new RegisterResponse();
-        Map<String, String> errors = checkUserParams(userRequest);
-        registerResponse.setResult(errors == null);
-        registerResponse.setErrors(errors);
+        User user = User.builder()
+                .isModerator(false)
+                .regTime(new Date())
+                .name(userRequest.getName())
+                .email(userRequest.getEmail())
+                .password(passwordEncoder.encode(userRequest.getPassword()))
+                .code("")
+                .photo("")
+                .build();
 
-        if (errors == null) {
+        userRepository.save(user);
 
-            User user = User.builder()
-                    .isModerator(false)
-                    .regTime(new Date())
-                    .name(userRequest.getName())
-                    .email(userRequest.getEmail())
-                    .password(passwordEncoder.encode(userRequest.getPassword()))
-                    .code("")
-                    .photo("")
-                    .build();
-
-            userRepository.save(user);
-        }
-
-        return registerResponse;
-    }
-
-    public Map<String, String> checkUserParams(UserRequest userRequest) {
-
-        Map<String, String> errors = new HashMap<>();
-
-        if(!captchaService.isCaptchaValid(userRequest.getCaptcha(), userRequest.getCaptchaSecret())) {
-            errors.put("captcha", "Код с картинки введён неверно");
-        }
-        if(userRequest.getPassword().length() < 6) {
-            errors.put("password", "Пароль короче 6-ти символов");
-        }
-        if(!userRequest.getName().matches("[\\w\\s@]+")) {
-            errors.put("name", "Имя указано неверно");
-        }
-        if(userRepository.existsByEmail(userRequest.getEmail())) {
-            errors.put("email", "Этот e-mail уже зарегистрирован");
-        }
-
-        if(errors.isEmpty()) {
-            return null;
-        } else {
-            return errors;
-        }
     }
 
     public User getUserByEmail(String email) throws UsernameNotFoundException {
@@ -100,6 +76,7 @@ public class UserService {
 
         SecurityUser securityUser = (SecurityUser) auth.getPrincipal();
         return getUserByEmail(securityUser.getEmail());
+
     }
 
     public void logout(HttpServletRequest request, HttpServletResponse response) {
@@ -108,5 +85,65 @@ public class UserService {
         if (authentication != null){
             new SecurityContextLogoutHandler().logout(request, response, authentication);
         }
+
+    }
+
+    public User getUserFromSecurityContext() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (((WebAuthenticationDetails)authentication.getDetails()).getSessionId() != null) {
+            SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
+            return getUserByEmail(securityUser.getEmail());
+        }
+        return null;
+    }
+
+    public void updateProfile(UserRequest userRequest, MultipartFile photo) throws Exception {
+
+//        boolean logoutRequired = false;
+
+        User user = getUserFromSecurityContext();
+        if(userRequest.getName() != null) {
+            user.setName(userRequest.getName());
+        }
+
+        if(userRequest.getEmail() != null) {
+            user.setEmail(userRequest.getEmail());
+//            logoutRequired = true;
+        }
+        if(userRequest.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+//            logoutRequired = true;
+        }
+        if(userRequest.isRemovePhoto()) {
+            user.setPhoto("");
+        }
+        if(photo != null) {
+            String fileName = postService.uploadFile(photo, avatarPathName);
+            user.setPhoto(fileName);
+        }
+        userRepository.save(user);
+    }
+
+    public boolean sendRestoreEmail(String email) {
+
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if(user != null) {
+            long hours = System.currentTimeMillis()/(1000*60*60);
+            String uuid = UUID.randomUUID().toString().replaceAll("-", "") + "*" + hours;
+            String link = rootUrlPath + "/login/change-password/" + uuid;
+            try {
+                emailService.send(email,
+                        Constants.RESTORE_EMAIL_TITLE,
+                        String.format(Constants.RESTORE_EMAIL_MESSAGE, link));
+
+                user.setCode(uuid);
+                userRepository.save(user);
+                return true;
+            } catch (Exception ex) {
+                return false;
+            }
+        }
+        return false;
     }
 }

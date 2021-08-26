@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class CalendarService {
 
     @Autowired
-    CalendarRepository calendarRepository;
+    private CalendarRepository calendarRepository;
 
     public CalendarResponse getCalendar() {
         List<CalendarDTO> list = calendarRepository.getCalendar(true, ModerationStatus.ACCEPTED);
