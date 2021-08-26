@@ -89,12 +89,13 @@ public class UserService {
     }
 
     public User getUserFromSecurityContext() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (((WebAuthenticationDetails)authentication.getDetails()).getSessionId() != null) {
-            SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
+        try{
+            SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             return getUserByEmail(securityUser.getEmail());
+
+        } catch (Exception ex) {
+            return null;
         }
-        return null;
     }
 
     public void updateProfile(UserRequest userRequest, MultipartFile photo) throws Exception {
@@ -127,11 +128,11 @@ public class UserService {
     public boolean sendRestoreEmail(String email) {
 
         User user = userRepository.findByEmail(email).orElse(null);
-
         if(user != null) {
             long hours = System.currentTimeMillis()/(1000*60*60);
             String uuid = UUID.randomUUID().toString().replaceAll("-", "") + "*" + hours;
             String link = rootUrlPath + "/login/change-password/" + uuid;
+
             try {
                 emailService.send(email,
                         Constants.RESTORE_EMAIL_TITLE,
@@ -140,10 +141,17 @@ public class UserService {
                 user.setCode(uuid);
                 userRepository.save(user);
                 return true;
+
             } catch (Exception ex) {
                 return false;
             }
         }
         return false;
+    }
+
+    public void restorePassword(UserRequest userRequest) {
+        User user = userRepository.findByCode(userRequest.getCode()).orElseThrow(NoSuchUserException::new);
+        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+        userRepository.save(user);
     }
 }

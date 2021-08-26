@@ -5,17 +5,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import main.Constants;
 import main.validation.OnCreate;
-import main.validation.OnUpdate;
+import main.validation.OnRestore;
 import main.validation.anotations.Captcha;
+import main.validation.anotations.IsCodeExpired;
+import main.validation.anotations.IsCodeValid;
 import main.validation.anotations.IsEmailExists;
 
 import javax.validation.constraints.Email;
-import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @Data
-@Captcha
+@Captcha //(groups = {OnCreate.class, OnRestore.class})
 public class UserRequest {
 
     @JsonAlias({"e_mail", "email"})
@@ -35,5 +36,9 @@ public class UserRequest {
     private String captchaSecret;
 
     private boolean removePhoto;
+
+    @IsCodeValid //(groups = OnRestore.class)
+    @IsCodeExpired //(groups = OnRestore.class)
+    private String code;
 
 }

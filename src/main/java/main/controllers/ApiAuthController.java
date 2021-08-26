@@ -12,6 +12,7 @@ import main.servises.PostService;
 import main.servises.SettingsService;
 import main.servises.UserService;
 import main.validation.OnCreate;
+import main.validation.OnRestore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -104,6 +105,16 @@ public class ApiAuthController {
         resultResponse.setResult(userService.sendRestoreEmail(email));
 
         return ResponseEntity.ok(resultResponse);
+    }
+
+    @PostMapping("/password")
+    @Validated(OnRestore.class)
+    public ResponseEntity<ResultResponse> changePassword(
+            @RequestBody @Valid UserRequest userRequest) {
+
+        userService.restorePassword(userRequest);
+
+        return ResponseEntity.ok(new ResultResponse());
     }
 
 }
