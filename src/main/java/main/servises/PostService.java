@@ -3,6 +3,7 @@ package main.servises;
 import main.Constants;
 import main.api.requests.PostRequest;
 import main.api.responses.PostResponse;
+import main.api.responses.StatisticResponse;
 import main.dto.PostDTO;
 import main.dto.PostDTOSingle;
 import main.exceptions.NoSuchPostException;
@@ -16,14 +17,14 @@ import main.security.SecurityUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
-import javax.servlet.ServletContext;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -57,8 +58,6 @@ public class PostService {
     @Value("${max.file.size}")
     private int maxFileSize;
 
-
-
     public PostResponse getPosts(String mode, Pageable pageable) {
 
         Page<Post> page;
@@ -82,7 +81,7 @@ public class PostService {
         List<PostDTO> postDTOList = page.getContent().stream()
                 .map(postMapper::mapToDTO).collect(Collectors.toList());
 
-        return new PostResponse(page.getTotalPages(), postDTOList);
+        return new PostResponse(page.getTotalElements(), postDTOList);
 
     }
 
@@ -92,7 +91,7 @@ public class PostService {
         List<PostDTO> postDTOList = page.getContent().stream()
                 .map(postMapper::mapToDTO).collect(Collectors.toList());
 
-        return new PostResponse(page.getTotalPages(), postDTOList);
+        return new PostResponse(page.getTotalElements(), postDTOList);
 
     }
 
@@ -103,7 +102,7 @@ public class PostService {
         List<PostDTO> postDTOList = page.getContent().stream()
                 .map(postMapper::mapToDTO).collect(Collectors.toList());
 
-        return new PostResponse(page.getTotalPages(), postDTOList);
+        return new PostResponse(page.getTotalElements(), postDTOList);
 
     }
 
@@ -113,7 +112,7 @@ public class PostService {
         List<PostDTO> postDTOList = page.getContent().stream()
                 .map(postMapper::mapToDTO).collect(Collectors.toList());
 
-        return new PostResponse(page.getTotalPages(), postDTOList);
+        return new PostResponse(page.getTotalElements(), postDTOList);
 
     }
 
@@ -145,7 +144,7 @@ public class PostService {
         List<PostDTO> postDTOList = page.getContent().stream()
                 .map(postMapper::mapToDTO).collect(Collectors.toList());
 
-        return new PostResponse(page.getTotalPages(), postDTOList);
+        return new PostResponse(page.getTotalElements(), postDTOList);
     }
 
     public PostResponse getMyPosts(String status, Pageable pageable) {
@@ -181,7 +180,7 @@ public class PostService {
         List<PostDTO> postDTOList = page.getContent().stream()
                 .map(postMapper::mapToDTO).collect(Collectors.toList());
 
-        return new PostResponse(page.getTotalPages(), postDTOList);
+        return new PostResponse(page.getTotalElements(), postDTOList);
     }
 
     public void savePost(PostRequest postRequest) {
@@ -299,5 +298,43 @@ public class PostService {
 
         postRepository.save(post);
         return true;
+    }
+
+    public StatisticResponse setStatistic(String mode) {
+
+        System.out.println(mode);
+
+        List<Post> posts = new ArrayList<>();
+        User user = userService.getUserFromSecurityContext();
+
+        if(mode.equals("my")) {
+            posts = postRepository
+                    .findByIsActiveAndModerationStatusAndUserOrderByTimeAsc(true, ModerationStatus.ACCEPTED, user);
+
+        } else if(mode.equals("all")) {
+            if(!user.isModerator()) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            }
+            posts = postRepository
+                    .findByIsActiveAndModerationStatusOrderByTimeAsc(true, ModerationStatus.ACCEPTED);
+        }
+
+        Map<Integer, Integer> likes = posts.stream()
+                .flatMap(post -> post.getVotes().stream())
+                .collect(Collectors.toMap(PostVote::getValue, vote -> 1, (v1, v2) -> v1 + 1));
+        int viewCount = posts.stream().reduce(0, (count, post) -> count + post.getViewCount(), Integer::sum);
+        long publication = posts.stream()
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND))
+                .getTime().getTime()/1000;
+
+        StatisticResponse response = new StatisticResponse();
+        response.setPostsCount(posts.size());
+        response.setLikesCount(likes.getOrDefault(1, 0));
+        response.setDislikesCount(likes.getOrDefault(-1, 0));
+        response.setViewsCount(viewCount);
+        response.setFirstPublication(publication);
+
+        return response;
     }
 }

@@ -18,11 +18,6 @@ import java.util.Set;
 
 public interface PostRepository extends CrudRepository<Post, Integer> {
 
-    List<Post> findByIsActiveAndModerationStatusOrderByTime(
-            boolean isActive,
-            ModerationStatus moderationStatus,
-            Pageable pageable);
-
     Page<Post> findByIsActiveAndModerationStatusOrderByTimeDesc(
             boolean isActive,
             ModerationStatus moderationStatus,
@@ -77,4 +72,13 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
             "SET p.isActive = :isActive, p.time = :time, p.title = :title, p.text = :text, p.tags = :tags " +
             "WHERE p.id = :id")
     void updatePost(int id, boolean isActive, Date time, String title, String text, Set<TagPost> tags);
+
+    List<Post> findByIsActiveAndModerationStatusAndUserOrderByTimeAsc(
+            boolean isActive,
+            ModerationStatus moderationStatus,
+            User user);
+
+    List<Post> findByIsActiveAndModerationStatusOrderByTimeAsc(
+            boolean isActive,
+            ModerationStatus moderationStatus);
 }

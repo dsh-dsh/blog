@@ -4,11 +4,13 @@ import main.api.requests.CommentRequest;
 import main.api.requests.ModerationRequest;
 import main.api.requests.UserRequest;
 import main.api.responses.*;
+import main.dto.SettingsDTO;
 import main.model.Comment;
 import main.servises.*;
 import main.validation.OnUpdate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +18,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -42,13 +45,10 @@ public class ApiGeneralController {
     private CommentService commentService;
     @Autowired
     private UserService userService;
-
     @Autowired
     private Validator validator;
-
     @Value("${upload.path}")
     private String uploadPathName;
-
 
     @GetMapping("/init")
     public InitResponse init() {
@@ -56,7 +56,7 @@ public class ApiGeneralController {
     }
 
     @GetMapping("/settings")
-    public SettingsResponse settings() {
+    public SettingsDTO settings() {
         return settingsService.getGlobalSettings();
     }
 
@@ -132,6 +132,27 @@ public class ApiGeneralController {
         userService.updateProfile(userRequest, null);
 
         return ResponseEntity.ok(new ResultResponse());
+    }
+
+    @GetMapping("/statistics/{mode}")
+    @PreAuthorize("hasAuthority('user:write')")
+    public ResponseEntity<StatisticResponse> statistic(@PathVariable String mode) {
+
+        if(!settingsService.getGlobalSettings().isStatisticIsPublic()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
+        StatisticResponse response = postService.setStatistic(mode);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/settings")
+    @PreAuthorize("hasAuthority('user:moderate')")
+    public void putSettings(@RequestBody SettingsDTO settings) {
+
+        settingsService.setGlobalSettings(settings);
+
     }
 
 }

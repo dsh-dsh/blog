@@ -8,7 +8,9 @@ import main.dto.PostDTOSingle;
 import main.model.ModerationStatus;
 import main.repositories.PostRepository;
 import main.servises.PostService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +33,8 @@ public class ApiPostController {
             @RequestParam String mode,
             Pageable pageable) {
 
+        pageable = convertPageable(pageable);
+
         PostResponse postResponse = postService.getPosts(mode, pageable);
         return ResponseEntity.ok(postResponse);
 
@@ -40,6 +44,8 @@ public class ApiPostController {
     public ResponseEntity<PostResponse> search(
             @RequestParam String query,
             Pageable pageable) {
+
+        pageable = convertPageable(pageable);
 
         if(query.trim().equals("")) {
             return getPosts("", pageable);
@@ -55,6 +61,8 @@ public class ApiPostController {
             @RequestParam(name = "date") String requestDate,
             Pageable pageable) throws ParseException {
 
+        pageable = convertPageable(pageable);
+
         PostResponse postResponse = postService.getPostsByDate(requestDate, pageable);
         return ResponseEntity.ok(postResponse);
     }
@@ -63,6 +71,8 @@ public class ApiPostController {
     public ResponseEntity<PostResponse> getByTag(
             @RequestParam String tag,
             Pageable pageable) {
+
+        pageable = convertPageable(pageable);
 
         PostResponse postResponse = postService.getPostsByTag(tag, pageable);
         return ResponseEntity.ok(postResponse);
@@ -82,6 +92,8 @@ public class ApiPostController {
             @RequestParam ModerationStatus status,
             Pageable pageable) {
 
+        pageable = convertPageable(pageable);
+
         PostResponse postResponse = postService.getPostsForModeration(status, pageable);
         return ResponseEntity.ok(postResponse);
     }
@@ -91,6 +103,8 @@ public class ApiPostController {
     public ResponseEntity<PostResponse> myPosts(
             @RequestParam String status,
             Pageable pageable) {
+
+        pageable = convertPageable(pageable);
 
         PostResponse postResponse = postService.getMyPosts(status, pageable);
         return ResponseEntity.ok(postResponse);
@@ -138,6 +152,10 @@ public class ApiPostController {
         resultResponse.setResult(postService.like(request.getPostId(), -1));
 
         return ResponseEntity.ok(resultResponse);
+    }
+
+    private Pageable convertPageable(Pageable pageable) {
+        return PageRequest.of(pageable.getPageNumber()/ pageable.getPageSize(), pageable.getPageSize());
     }
 
 }

@@ -1,10 +1,10 @@
-package main.api.responses;
+package main.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class SettingsResponse {
+public class SettingsDTO {
 
     @JsonProperty("MULTIUSER_MODE")
     private boolean multiuserMode;

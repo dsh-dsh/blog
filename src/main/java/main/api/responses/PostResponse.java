@@ -7,10 +7,10 @@ import java.util.List;
 @Data
 public class PostResponse {
 
-    private int count;
+    private long count;
     private List<PostDTO> posts;
 
-    public PostResponse(int count, List<PostDTO> posts) {
+    public PostResponse(long count, List<PostDTO> posts) {
         this.count = count;
         this.posts = posts;
     }
