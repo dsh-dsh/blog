@@ -52,12 +52,6 @@ public class PostService {
     @Autowired
     private PostRequestMapper postRequestMapper;
 
-    @Value("${resources.path}")
-    private String resourcesPathName;
-
-    @Value("${max.file.size}")
-    private int maxFileSize;
-
     public PostResponse getPosts(String mode, Pageable pageable) {
 
         Page<Post> page;
@@ -227,42 +221,7 @@ public class PostService {
         postRepository.save(post);
     }
 
-    public String uploadFile(MultipartFile image, String uploadPathName) throws Exception{
 
-        if (!image.isEmpty()) {
-            if(image.getSize() > maxFileSize) {
-                throw new UnableToUploadFileException(Constants.FILE_SIZE_ERROR);
-            }
-            if(!(image.getContentType().equals("image/jpeg") || image.getContentType().equals("image/png"))) {
-                throw new UnableToUploadFileException(Constants.WRONG_IMAGE_TYPE);
-            }
-
-            String uploadFileName = makeImagePath(image.getOriginalFilename(), uploadPathName);
-            Path uploadFilePath = Paths.get(resourcesPathName + uploadPathName + uploadFileName);
-
-            try(InputStream inputStream = image.getInputStream()) {
-                Files.copy(inputStream, uploadFilePath, StandardCopyOption.REPLACE_EXISTING);
-                return uploadPathName + uploadFileName;
-
-            } catch (Exception e) {
-                throw new UnableToUploadFileException(Constants.FILE_UPLOAD_ERROR);
-            }
-        } else {
-            throw new UnableToUploadFileException(Constants.FILE_MISSING_ERROR);
-        }
-    }
-
-    public String makeImagePath(String originName, String uploadPathName) {
-        String extension = originName.substring(originName.lastIndexOf("."));
-        String uuid = UUID.randomUUID().toString().replaceAll("-", "");
-        String newDirName = "/" + uuid.substring(0, 3) + "/" + uuid.substring(3, 6) + "/" + uuid.substring(6, 9);
-        try {
-            System.out.println(Files.createDirectories(Paths.get(resourcesPathName + uploadPathName + newDirName)));
-            return newDirName + "/" + uuid.substring(9, 18) + extension;
-        } catch(IOException ex) {
-            throw new UnableToUploadFileException(Constants.FILE_UPLOAD_ERROR);
-        }
-    }
 
     public void moderatePost(int postId, ModerationStatus moderationStatus) {
         User moderator = userService.getUserFromSecurityContext();

@@ -46,6 +46,8 @@ public class ApiGeneralController {
     @Autowired
     private UserService userService;
     @Autowired
+    private FileService fileService;
+    @Autowired
     private Validator validator;
     @Value("${upload.path}")
     private String uploadPathName;
@@ -81,7 +83,11 @@ public class ApiGeneralController {
     public String addImage (
             @RequestParam MultipartFile image) throws Exception{
 
-        return postService.uploadFile(image, uploadPathName);
+        fileService.setFile(image);
+        fileService.setUploadPathName(uploadPathName);
+        fileService.uploadFile();
+
+        return fileService.getNewFileName();
 
     }
 

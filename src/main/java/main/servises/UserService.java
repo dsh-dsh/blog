@@ -15,12 +15,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.mail.AuthenticationFailedException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
@@ -39,6 +37,8 @@ public class UserService {
     private PostService postService;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private FileService fileService;
 
     @Value("${avatar.path}")
     private String avatarPathName;
@@ -100,8 +100,6 @@ public class UserService {
 
     public void updateProfile(UserRequest userRequest, MultipartFile photo) throws Exception {
 
-//        boolean logoutRequired = false;
-
         User user = getUserFromSecurityContext();
         if(userRequest.getName() != null) {
             user.setName(userRequest.getName());
@@ -109,18 +107,18 @@ public class UserService {
 
         if(userRequest.getEmail() != null) {
             user.setEmail(userRequest.getEmail());
-//            logoutRequired = true;
         }
         if(userRequest.getPassword() != null) {
             user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
-//            logoutRequired = true;
         }
         if(userRequest.isRemovePhoto()) {
             user.setPhoto("");
         }
         if(photo != null) {
-            String fileName = postService.uploadFile(photo, avatarPathName);
-            user.setPhoto(fileName);
+            fileService.setFile(photo);
+            fileService.setUploadPathName(avatarPathName);
+            fileService.uploadFile();
+            user.setPhoto(fileService.getNewFileName());
         }
         userRepository.save(user);
     }
