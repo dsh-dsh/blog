@@ -12,4 +12,9 @@ public class DefaultController {
         return "index";
     }
 
+    @GetMapping("/login/change-password/{hash}")
+    public String changePassword() {
+        return "index";
+    }
+
 }

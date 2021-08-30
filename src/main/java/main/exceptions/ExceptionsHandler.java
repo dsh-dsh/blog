@@ -4,6 +4,7 @@ import main.Constants;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
@@ -26,6 +27,12 @@ import java.util.stream.Stream;
 
 @ControllerAdvice
 public class ExceptionsHandler extends ResponseEntityExceptionHandler {
+    
+    @ExceptionHandler(UsernameNotFoundException.class)
+    protected ResponseEntity<Object> handleUsernameNotFoundException(UsernameNotFoundException ex) {
+        ErrorMessage message = new ErrorMessage(Constants.USER_NOT_FOUND, ex.getMessage(), false, null);
+        return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+    }
 
     @Override
     protected ResponseEntity<Object> handleMissingServletRequestPart(MissingServletRequestPartException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
@@ -36,7 +43,7 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler({NoSuchPostException.class, EntityNotFoundException.class})
-    protected ResponseEntity<Object> handleNoSuchPostExceptions(RuntimeException ex, WebRequest request) {
+    protected ResponseEntity<Object> handleNoSuchPostExceptions(RuntimeException ex) {
         ErrorMessage message = new ErrorMessage(Constants.POST_NOT_FOUND, ex.getMessage(), false, null);
         return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
     }

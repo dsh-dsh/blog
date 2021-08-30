@@ -3,10 +3,14 @@ package main.servises;
 import lombok.Data;
 import main.Constants;
 import main.exceptions.UnableToUploadFileException;
+import org.imgscalr.Scalr;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -23,6 +27,8 @@ public class FileService {
     private String resourcesPathName;
     @Value("${max.file.size}")
     private int maxFileSize;
+    @Value("${store.photo.width}")
+    private int photoWidth;
 
     private String uploadPathName;
     private MultipartFile file;
@@ -42,12 +48,9 @@ public class FileService {
                 Path uploadFilePath = Paths.get(resourcesPathName + newFileName);
 
                 try (InputStream inputStream = file.getInputStream()) {
-                    System.out.println(uploadFilePath);
-
                     Files.copy(inputStream, uploadFilePath, StandardCopyOption.REPLACE_EXISTING);
 
                 } catch (Exception e) {
-                    System.out.println("exception line 48 uploadFile");
                     throw new UnableToUploadFileException(Constants.FILE_UPLOAD_ERROR);
                 }
             }
@@ -65,15 +68,46 @@ public class FileService {
         String fileName = uuid.substring(9, 18) + extension;
 
         try {
-            System.out.println(resourcesPathName + uploadPathName + newDirName);
             Files.createDirectories(Paths.get(resourcesPathName + uploadPathName + newDirName));
             newFileName = uploadPathName + newDirName + "/" + fileName;
             return true;
 
         } catch(IOException ex) {
-            System.out.println("exception line 71 makeNewFilePath");
             throw new UnableToUploadFileException(Constants.FILE_UPLOAD_ERROR);
         }
+    }
+
+    public void resizeImageFile() {
+
+        String extension = newFileName.substring(newFileName.lastIndexOf(".") + 1);
+
+        try{
+            BufferedImage image = ImageIO.read(new File(resourcesPathName + newFileName));
+
+            int height = image.getHeight();
+            int width = image.getWidth();
+            int x, y, size;
+
+            if(height > width) {
+                System.out.println(1);
+                x = 0;
+                y = (height - width) / 2;
+                size = width;
+            } else {
+                System.out.println(2);
+                y = 0;
+                x = (width - height) / 2;
+                size = height;
+            }
+
+            BufferedImage croppedImage = Scalr.crop(image, x, y, size, size);
+            BufferedImage resizedImage = Scalr.resize(croppedImage, photoWidth);
+            ImageIO.write(resizedImage, extension, new File(resourcesPathName + newFileName));
+
+        } catch (Exception ex) {
+            throw new UnableToUploadFileException(Constants.RESIZE_FILE_ERROR);
+        }
+
     }
 
 }

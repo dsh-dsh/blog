@@ -24,4 +24,5 @@ public final class Constants {
             "<a href=\n" +
             "\\\"/auth/restore\\\">Запросить ссылку снова</a>";
     public static final String USER_NOT_FOUND = "Пользователь не найден";
+    public static final String RESIZE_FILE_ERROR = "Не получилось измененить размер загруженого изображения";
 }

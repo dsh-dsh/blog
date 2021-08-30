@@ -118,6 +118,7 @@ public class UserService {
             fileService.setFile(photo);
             fileService.setUploadPathName(avatarPathName);
             fileService.uploadFile();
+            fileService.resizeImageFile();
             user.setPhoto(fileService.getNewFileName());
         }
         userRepository.save(user);

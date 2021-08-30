@@ -33,6 +33,7 @@ upload.path: /upload
 avatar.path: /avatars
 max.file.size: 256000
 max.photo.size: 5000
+store.photo.width: 36
 
 spring.mail.host: smtp.inbox.ru
 spring.mail.fromEmail: daniilshipilov@inbox.ru
