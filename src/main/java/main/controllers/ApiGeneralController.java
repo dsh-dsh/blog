@@ -71,9 +71,10 @@ public class ApiGeneralController {
     }
 
     @GetMapping("/calendar")
-    public ResponseEntity<CalendarResponse> calendar(@RequestParam int year) {
+    public ResponseEntity<CalendarResponse> calendar(
+            @RequestParam(required = false) Integer year) {
 
-        CalendarResponse calendarResponse = calendarService.getCalendar();
+        CalendarResponse calendarResponse = calendarService.getCalendar(year);
         return ResponseEntity.ok(calendarResponse);
 
     }

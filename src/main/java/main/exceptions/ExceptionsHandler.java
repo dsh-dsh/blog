@@ -34,14 +34,6 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
     }
 
-    @Override
-    protected ResponseEntity<Object> handleMissingServletRequestPart(MissingServletRequestPartException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("image", Constants.FILE_MISSING_ERROR);
-        ErrorMessage message = new ErrorMessage(null, null, false, errors);
-        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
-    }
-
     @ExceptionHandler({NoSuchPostException.class, EntityNotFoundException.class})
     protected ResponseEntity<Object> handleNoSuchPostExceptions(RuntimeException ex) {
         ErrorMessage message = new ErrorMessage(Constants.POST_NOT_FOUND, ex.getMessage(), false, null);
@@ -65,6 +57,15 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler {
         ErrorMessage errorMessage = new ErrorMessage(null, null, false, errors);
 
         return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMissingServletRequestPart(
+            MissingServletRequestPartException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("image", Constants.FILE_MISSING_ERROR);
+        ErrorMessage message = new ErrorMessage(null, null, false, errors);
+        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
     }
 
     @Override

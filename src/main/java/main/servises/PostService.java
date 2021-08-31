@@ -91,13 +91,16 @@ public class PostService {
 
     public PostResponse getPostsByDate(String requestDate, Pageable pageable) throws ParseException {
 
-        Date date = new SimpleDateFormat("yyyy-MM-dd").parse(requestDate);
-        Page<Post> page = postRepository.findByTime(date, pageable);
-        List<PostDTO> postDTOList = page.getContent().stream()
-                .map(postMapper::mapToDTO).collect(Collectors.toList());
+        try {
+            Date date = new SimpleDateFormat("yyyy-MM-dd").parse(requestDate);
+            Page<Post> page = postRepository.findByTime(date, pageable);
+            List<PostDTO> postDTOList = page.getContent().stream()
+                    .map(postMapper::mapToDTO).collect(Collectors.toList());
+            return new PostResponse(page.getTotalElements(), postDTOList);
 
-        return new PostResponse(page.getTotalElements(), postDTOList);
-
+        } catch (ParseException ex) {
+            throw new NoSuchPostException(Constants.POST_DATE_ERROR);
+        }
     }
 
     public PostResponse getPostsByTag(String tag, Pageable pageable) {

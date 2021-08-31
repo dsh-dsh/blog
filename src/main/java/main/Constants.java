@@ -25,4 +25,5 @@ public final class Constants {
             "\\\"/auth/restore\\\">Запросить ссылку снова</a>";
     public static final String USER_NOT_FOUND = "Пользователь не найден";
     public static final String RESIZE_FILE_ERROR = "Не получилось измененить размер загруженого изображения";
+    public static final String POST_DATE_ERROR = "Ошибка в дате";
 }
