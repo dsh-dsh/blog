@@ -8,7 +8,6 @@ import main.dto.PostDTOSingle;
 import main.model.ModerationStatus;
 import main.repositories.PostRepository;
 import main.servises.PostService;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -79,7 +78,7 @@ public class ApiPostController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PostDTOSingle> getById(@PathVariable int id) throws Exception {
+    public ResponseEntity<PostDTOSingle> getById(@PathVariable int id) {
 
         PostDTOSingle postDTOSingle = postService.getPostsById(id);
         return ResponseEntity.ok(postDTOSingle);
@@ -95,12 +94,15 @@ public class ApiPostController {
         pageable = convertPageable(pageable);
 
         PostResponse postResponse = postService.getPostsForModeration(status, pageable);
+
+        System.out.println(postResponse);
+
         return ResponseEntity.ok(postResponse);
     }
 
     @GetMapping("/my")
     @PreAuthorize("hasAuthority('user:write')")
-    public ResponseEntity<PostResponse> myPosts(
+    public ResponseEntity<PostResponse> getMyPosts(
             @RequestParam String status,
             Pageable pageable) {
 
@@ -124,7 +126,7 @@ public class ApiPostController {
     @PreAuthorize("hasAuthority('user:write')")
     public ResponseEntity<ResultResponse> changePost(
             @RequestBody @Valid PostRequest postRequest,
-            @PathVariable int id) throws Exception{
+            @PathVariable int id) {
 
         postRequest.setId(id);
         postService.updatePost(postRequest);

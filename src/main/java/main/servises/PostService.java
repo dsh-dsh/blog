@@ -7,30 +7,17 @@ import main.api.responses.StatisticResponse;
 import main.dto.PostDTO;
 import main.dto.PostDTOSingle;
 import main.exceptions.NoSuchPostException;
-import main.exceptions.UnableToUploadFileException;
 import main.mappers.PostMapperSingle;
 import main.mappers.PostRequestMapper;
 import main.model.*;
 import main.repositories.PostRepository;
 import main.mappers.PostMapper;
-import main.security.SecurityUser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -89,7 +76,7 @@ public class PostService {
 
     }
 
-    public PostResponse getPostsByDate(String requestDate, Pageable pageable) throws ParseException {
+    public PostResponse getPostsByDate(String requestDate, Pageable pageable) {
 
         try {
             Date date = new SimpleDateFormat("yyyy-MM-dd").parse(requestDate);
@@ -141,6 +128,7 @@ public class PostService {
         List<PostDTO> postDTOList = page.getContent().stream()
                 .map(postMapper::mapToDTO).collect(Collectors.toList());
 
+
         return new PostResponse(page.getTotalElements(), postDTOList);
     }
 
@@ -148,15 +136,7 @@ public class PostService {
 
         boolean isActive = false;
         ModerationStatus moderationStatus = ModerationStatus.NEW;
-        User user;
-
-        SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        if (securityUser != null) {
-            user = userService.getUserByEmail(securityUser.getEmail());
-        } else {
-            return new PostResponse(0, new ArrayList<>());
-        }
+        User user = userService.getUserFromSecurityContext();
 
         switch (status) {
             case "pending":

@@ -1,7 +1,6 @@
 package main.api.requests;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import main.Constants;
 import main.validation.anotations.IsParentExists;

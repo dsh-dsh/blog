@@ -1,12 +1,11 @@
 package main.dto;
 
-import lombok.Data;
 import lombok.Getter;
 
 @Getter
 public class CaptchaDTO {
-    private String secret;
-    private String image;
+    private final String secret;
+    private final String image;
 
     public CaptchaDTO(String secret, String image) {
         this.secret = secret;

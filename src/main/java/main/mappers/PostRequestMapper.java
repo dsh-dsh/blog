@@ -11,9 +11,9 @@ import java.util.Date;
 @Component
 public class PostRequestMapper {
 
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
-    private Converter<Long, Date> timestampConverter = l -> new Date(l.getSource()*1000);
+    private final Converter<Long, Date> timestampConverter = l -> new Date(l.getSource()*1000);
 
     public PostRequestMapper() {
         this.modelMapper = new ModelMapper();

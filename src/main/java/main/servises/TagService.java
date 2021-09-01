@@ -1,13 +1,15 @@
 package main.servises;
 
-import main.api.responses.TagResponse;
 import main.dto.TagDTO;
 import main.model.ModerationStatus;
 import main.model.Tag;
 import main.repositories.TagRepository;
 import main.mappers.TagMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,45 +25,42 @@ public class TagService {
     @Autowired
     private TagMapper tagMapper;
 
-    public TagResponse getTagResponse() {
+    public List<TagDTO> getTagResponse() {
 
         List<Tag> tagList = tagRepository.findAll();
         List<TagDTO> tags = new ArrayList<>();
         int postCount = postService.getPostCount(true, ModerationStatus.ACCEPTED);
 
-        try{
-            int maxPosts = tagList.stream()
-                    .map(t -> t.getPosts().size())
-                    .max(Integer::compareTo)
-                    .get();
-
-            double normKoeff = 1 / (maxPosts / (double) postCount);
-            tagMapper.setPostCount(postCount);
-            tagMapper.setNormKoeff(normKoeff);
-
-            tags = tagList.stream()
-                    .map(tagMapper::mapToDTO)
-                    .collect(Collectors.toList());
-
-        } catch(ArithmeticException ex) {
-            ex.getStackTrace();
+        if (postCount == 0) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return new TagResponse(tags);
+        int maxPosts = tagList.stream()
+                .map(t -> t.getPosts().size())
+                .max(Integer::compareTo)
+                .orElse(0);
+
+        double normCoefficient = 1 / (maxPosts / (double) postCount);
+        tagMapper.setPostCount(postCount);
+        tagMapper.setNormCoefficient(normCoefficient);
+
+        return tagList.stream()
+                .map(tagMapper::mapToDTO)
+                .collect(Collectors.toList());
 
     }
 
     public List<Tag> addIfNotExists(String[] tags) {
 
         List<String> tagNames = Arrays.asList(tags);
-        List<Tag> tagsInDB = tagRepository.findByNameIn(tagNames);
-
-        List<String> existingTagNames = tagsInDB.stream().map(Tag::getName).collect(Collectors.toList());
-
-        //tagNames.stream().filter(tagName -> !existingTagNames.contains(tagName));
+        List<Tag> tagsInDB = tagRepository.findByNameIgnoreCaseIn(tagNames);
+        List<String> existingTagNames = tagsInDB.stream()
+                .map(Tag::getName)
+                .map(String::toUpperCase)
+                .collect(Collectors.toList());
 
         List<Tag> newTags = tagNames.stream()
-                .filter(tagName -> !existingTagNames.contains(tagName))
+                .filter(tagName -> !existingTagNames.contains(tagName.toUpperCase()))
                 .map(this::addNewTag)
                 .collect(Collectors.toList());
 

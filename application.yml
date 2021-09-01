@@ -25,9 +25,6 @@ init.copyrightFrom: 2005
 time.expired.mc: 3600000
 restore.code.expired.hours: 48
 
-#spring.servlet.multipart.max-file-size: 256KB
-#spring.servlet.multipart.max-request-size: 256KB
-
 resources.path: ./src/main/resources
 upload.path: /upload
 avatar.path: /avatars

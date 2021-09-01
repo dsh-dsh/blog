@@ -5,7 +5,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -21,6 +20,7 @@ import javax.validation.ConstraintViolationException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -82,7 +82,7 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler {
         Map<String, String> classErrors = ex.getBindingResult()
                 .getAllErrors()
                 .stream()
-                .filter(objectError -> objectError.getCode().equals("Captcha"))
+                .filter(objectError -> Objects.equals(objectError.getCode(), "Captcha"))
                 .collect(Collectors.toMap(mapKeyToLowerCase, ObjectError::getDefaultMessage));
 
         Map<String, String> errors = Stream.concat(fieldErrors.entrySet().stream(), classErrors.entrySet().stream())
@@ -96,7 +96,6 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleNoHandlerFoundException(
             NoHandlerFoundException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-
         return ResponseEntity.status(301).header("redirect", "/").build();
     }
 

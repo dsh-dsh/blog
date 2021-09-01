@@ -7,8 +7,8 @@ import java.util.Date;
 @Getter
 public class CalendarDTO {
 
-    private String date;
-    private long count;
+    private final String date;
+    private final long count;
 
     public CalendarDTO(Date date, long count) {
         this.date = date.toString();

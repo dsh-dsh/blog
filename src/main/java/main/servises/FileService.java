@@ -3,7 +3,9 @@ package main.servises;
 import lombok.Data;
 import main.Constants;
 import main.exceptions.UnableToUploadFileException;
+import main.repositories.PostRepository;
 import org.imgscalr.Scalr;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,11 +32,14 @@ public class FileService {
     @Value("${store.photo.width}")
     private int photoWidth;
 
+    @Autowired
+    private PostRepository postRepository;
+
     private String uploadPathName;
     private MultipartFile file;
     private String newFileName;
 
-    public void uploadFile() throws Exception{
+    public void uploadFile() {
 
         if (!file.isEmpty()) {
             if(file.getSize() > maxFileSize) {
@@ -107,7 +112,6 @@ public class FileService {
         } catch (Exception ex) {
             throw new UnableToUploadFileException(Constants.RESIZE_FILE_ERROR);
         }
-
     }
 
 }

@@ -16,19 +16,19 @@ public class PostMapper {
 
     private final ModelMapper modelMapper;
 
-    private Converter<Date, Long> timestampConverter =
+    private final Converter<Date, Long> timestampConverter =
             date -> (date.getSource().getTime() / 1000);
-    private Converter<String, String> announceConverter =
+    private final Converter<String, String> announceConverter =
             text -> {
                     String announce = Jsoup.parse(text.getSource()).text();
                     announce = announce.substring(0, Math.min(announce.length(), 147)) + "...";
                     return announce;
                 };
-    private Converter<List<Comment>, Integer> commentsConverter =
+    private final Converter<List<Comment>, Integer> commentsConverter =
             comments -> Math.toIntExact(comments.getSource().size());
-    private Converter<List<PostVote>, Integer> likesConverter =
+    private final Converter<List<PostVote>, Integer> likesConverter =
             votes -> Math.toIntExact(votes.getSource().stream().filter(i -> i.getValue() > 0).count());
-    private Converter<List<PostVote>, Integer> dislikesConverter =
+    private final Converter<List<PostVote>, Integer> dislikesConverter =
             votes -> Math.toIntExact(votes.getSource().stream().filter(i -> i.getValue() < 0).count());
 
     public PostMapper() {

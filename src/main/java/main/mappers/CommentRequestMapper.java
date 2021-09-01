@@ -24,10 +24,10 @@ public class CommentRequestMapper {
 
     private final ModelMapper modelMapper;
 
-    private Converter<Integer, Comment> commentConverter =
+    private final Converter<Integer, Comment> commentConverter =
             id -> (id.getSource() != 0) ? commentRepository.findById(id.getSource()).orElseThrow(EntityNotFoundException::new) : null;
 
-    private Converter<Integer, Post> postConverter =
+    private final Converter<Integer, Post> postConverter =
             id -> postRepository.findById(id.getSource()).orElseThrow(() -> new NoSuchPostException(id.getSource()));
 
     public CommentRequestMapper() {

@@ -2,7 +2,6 @@ package main.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import main.model.Tag;
 
 import java.util.List;
 

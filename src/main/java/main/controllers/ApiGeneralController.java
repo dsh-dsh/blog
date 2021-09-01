@@ -5,6 +5,7 @@ import main.api.requests.ModerationRequest;
 import main.api.requests.UserRequest;
 import main.api.responses.*;
 import main.dto.SettingsDTO;
+import main.dto.TagDTO;
 import main.model.Comment;
 import main.servises.*;
 import main.validation.OnUpdate;
@@ -24,6 +25,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import javax.validation.Validator;
+import java.util.List;
 import java.util.Set;
 
 @Validated
@@ -65,7 +67,8 @@ public class ApiGeneralController {
     @GetMapping("/tag")
     public ResponseEntity<TagResponse> tags() {
 
-        TagResponse tagResponse = tagService.getTagResponse();
+        List<TagDTO> tags = tagService.getTagResponse();
+        TagResponse tagResponse = new TagResponse(tags);
         return ResponseEntity.ok(tagResponse);
 
     }
@@ -106,7 +109,7 @@ public class ApiGeneralController {
     @PostMapping("/moderation")
     @PreAuthorize("hasAuthority('user:moderate')")
     public ResponseEntity<ResultResponse> moderatePost(
-            @RequestBody ModerationRequest request) throws Exception{
+            @RequestBody ModerationRequest request) {
 
         postService.moderatePost(request.getId(), request.getDecision());
 

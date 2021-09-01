@@ -12,7 +12,7 @@ import java.util.Date;
 public class CommentMapper {
     private final ModelMapper modelMapper;
 
-    private Converter<Date, Long> timestampConverter =
+    private final Converter<Date, Long> timestampConverter =
             (date) -> (date.getSource().getTime() / 1000);
 
     public CommentMapper() {

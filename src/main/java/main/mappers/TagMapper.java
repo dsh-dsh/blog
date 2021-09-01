@@ -17,10 +17,11 @@ public class TagMapper {
     @Setter
     private int postCount;
     @Setter
-    private double normKoeff;
+    private double normCoefficient;
 
-    private Converter<Set<Post>, Double> weightConverter =
-            (posts) -> (posts.getSource().size() / (double) postCount) * normKoeff;
+
+    private final Converter<Set<Post>, Double> weightConverter =
+            (posts) -> (posts.getSource().size() / (double) postCount) * normCoefficient;
 
     public TagMapper() {
         this.modelMapper = new ModelMapper();

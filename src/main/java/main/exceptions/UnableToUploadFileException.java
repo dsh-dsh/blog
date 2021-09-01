@@ -1,7 +1,7 @@
 package main.exceptions;
 
 public class UnableToUploadFileException extends RuntimeException{
-    private String message;
+    private final String message;
 
     public UnableToUploadFileException(String message) {
         this.message = message;

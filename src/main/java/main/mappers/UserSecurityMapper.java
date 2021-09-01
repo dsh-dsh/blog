@@ -15,7 +15,7 @@ public class UserSecurityMapper {
 
     private final ModelMapper modelMapper;
 
-    private Converter<Boolean, Set<SimpleGrantedAuthority>> authorityConverter =
+    private final Converter<Boolean, Set<SimpleGrantedAuthority>> authorityConverter =
             b -> getRole(b.getSource()).getAuthorities();
 
     public UserSecurityMapper() {

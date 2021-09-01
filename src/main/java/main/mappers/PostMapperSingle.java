@@ -22,15 +22,15 @@ public class PostMapperSingle {
 
     private final ModelMapper modelMapper;
 
-    private Converter<Date, Long> timestampConverter =
+    private final Converter<Date, Long> timestampConverter =
             (date) -> (date.getSource().getTime() / 1000);
-    private Converter<List<PostVote>, Integer> likesConverter =
+    private final Converter<List<PostVote>, Integer> likesConverter =
             (votes) -> Math.toIntExact(votes.getSource().stream().filter(i -> i.getValue() > 0).count());
-    private Converter<List<PostVote>, Integer> dislikesConverter =
+    private final Converter<List<PostVote>, Integer> dislikesConverter =
             (votes) -> Math.toIntExact(votes.getSource().stream().filter(i -> i.getValue() < 0).count());
-    private Converter<List<Comment>, List<CommentDTO>> commentsConverter =
+    private final Converter<List<Comment>, List<CommentDTO>> commentsConverter =
             (comments) -> comments.getSource().stream().map(commentMapper::mapToDTO).collect(Collectors.toList());
-    private Converter<Set<TagPost>, String[]> tagsConverter =
+    private final Converter<Set<TagPost>, String[]> tagsConverter =
             (tags) -> tags.getSource().stream().map(TagPost::getTag).map(Tag::getName).toArray(String[]::new);
 
     public PostMapperSingle() {

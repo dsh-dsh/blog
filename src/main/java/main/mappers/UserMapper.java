@@ -6,6 +6,7 @@ import main.model.User;
 import main.servises.PostService;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.spi.MappingContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,10 +16,10 @@ public class UserMapper {
     @Autowired
     private PostService postService;
 
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
-    private Converter<Boolean, Integer> moderationCountConverter = b -> getModerationCount(b.getSource());
-    private Converter<Boolean, Boolean> settingsConverter = b -> b.getSource();
+    private final Converter<Boolean, Integer> moderationCountConverter = b -> getModerationCount(b.getSource());
+    private final Converter<Boolean, Boolean> settingsConverter = MappingContext::getSource;
 
     public UserMapper() {
         this.modelMapper = new ModelMapper();
