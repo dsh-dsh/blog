@@ -62,9 +62,10 @@ public class ApiAuthController {
     }
 
     @PostMapping("/register")
-    @Validated(OnCreate.class)
     public ResponseEntity<ResultResponse> register(
-            @RequestBody @Valid UserRequest userRequest) {
+            @RequestBody
+            @Validated(OnCreate.class)
+            UserRequest userRequest) {
 
         if(!settingsService.getGlobalSettings().isMultiuserMode()) {
             return ResponseEntity.notFound().build();
@@ -72,7 +73,6 @@ public class ApiAuthController {
 
         userService.saveNewUser(userRequest);
         return ResponseEntity.ok(new ResultResponse());
-
     }
 
     @PostMapping("/login")
@@ -80,10 +80,8 @@ public class ApiAuthController {
             @RequestBody LoginRequest loginRequest) {
 
         User user = userService.login(loginRequest);
-
         LoginResponse loginResponse = new LoginResponse(true, userMapper.mapToUserDTO(user));
         return ResponseEntity.ok(loginResponse);
-
     }
 
     @GetMapping("/logout")
@@ -91,7 +89,6 @@ public class ApiAuthController {
             HttpServletRequest request, HttpServletResponse response) {
 
         userService.logout(request, response);
-
         LoginResponse loginResponse = new LoginResponse(true, null);
         return ResponseEntity.ok(loginResponse);
     }
@@ -103,17 +100,16 @@ public class ApiAuthController {
         String email = request.getEmail();
         ResultResponse resultResponse = new ResultResponse();
         resultResponse.setResult(userService.sendRestoreEmail(email));
-
         return ResponseEntity.ok(resultResponse);
     }
 
     @PostMapping("/password")
-    @Validated(OnRestore.class)
     public ResponseEntity<ResultResponse> changePassword(
-            @RequestBody @Valid UserRequest userRequest) {
+            @RequestBody
+            @Validated(OnRestore.class)
+            UserRequest userRequest) {
 
         userService.restorePassword(userRequest);
-
         return ResponseEntity.ok(new ResultResponse());
     }
 

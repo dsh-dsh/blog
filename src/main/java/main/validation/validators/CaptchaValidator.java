@@ -16,9 +16,6 @@ public class CaptchaValidator implements ConstraintValidator<Captcha, Object> {
     public boolean isValid(Object object, ConstraintValidatorContext constraintValidatorContext) {
 
         UserRequest userRequest = (UserRequest) object;
-
-        if(userRequest.getCaptcha() == null) return true;
-
         return captchaRepository.existsByCodeAndSecretCode(userRequest.getCaptcha(), userRequest.getCaptchaSecret());
     }
 }

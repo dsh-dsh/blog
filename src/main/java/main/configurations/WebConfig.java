@@ -10,10 +10,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${upload.path}")
-    private String uploadPathName;
-    @Value("${avatar.path}")
-    private String avatarPathName;
+    @Value("${images.dir}")
+    private String imagesPath;
+    @Value("${avatars.dir}")
+    private String avatarsPath;
+    @Value("${upload.dir}")
+    private String uploadPath;
 
     @Override
     public void addFormatters(FormatterRegistry registry) {
@@ -22,9 +24,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler(uploadPathName + "/**")
-                .addResourceLocations("classpath:" + uploadPathName + "/");
-        registry.addResourceHandler(avatarPathName + "/**")
-                .addResourceLocations("classpath:" + avatarPathName + "/");
+        registry.addResourceHandler(imagesPath + "/**")
+                .addResourceLocations("file:///" + uploadPath + imagesPath + "/");
+        registry.addResourceHandler("/avatars/**")
+                .addResourceLocations("file:///" + uploadPath + avatarsPath + "/");
     }
 }

@@ -51,8 +51,9 @@ public class ApiGeneralController {
     private FileService fileService;
     @Autowired
     private Validator validator;
-    @Value("${upload.path}")
-    private String uploadPathName;
+
+    @Value("${images.dir}")
+    private String imagesPath;
 
     @GetMapping("/init")
     public InitResponse init() {
@@ -70,7 +71,6 @@ public class ApiGeneralController {
         List<TagDTO> tags = tagService.getTagResponse();
         TagResponse tagResponse = new TagResponse(tags);
         return ResponseEntity.ok(tagResponse);
-
     }
 
     @GetMapping("/calendar")
@@ -79,7 +79,6 @@ public class ApiGeneralController {
 
         CalendarResponse calendarResponse = calendarService.getCalendar(year);
         return ResponseEntity.ok(calendarResponse);
-
     }
 
     @PostMapping("/image")
@@ -88,11 +87,9 @@ public class ApiGeneralController {
             @RequestParam MultipartFile image) throws Exception{
 
         fileService.setFile(image);
-        fileService.setUploadPathName(uploadPathName);
+        fileService.setUploadPathName(imagesPath);
         fileService.uploadFile();
-
         return fileService.getNewFileName();
-
     }
 
     @PostMapping("/comment")
@@ -102,7 +99,6 @@ public class ApiGeneralController {
 
         Comment comment = commentService.add(commentRequest);
         CommentResponse response = new CommentResponse(comment.getId());
-
         return ResponseEntity.ok(response);
     }
 
@@ -112,35 +108,33 @@ public class ApiGeneralController {
             @RequestBody ModerationRequest request) {
 
         postService.moderatePost(request.getId(), request.getDecision());
-
         return ResponseEntity.ok(new ResultResponse());
     }
 
     @PostMapping(value = "/profile/my", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAuthority('user:write')")
-    @Validated(OnUpdate.class)
     public ResponseEntity<ResultResponse> updateFormProfile(
-            @Valid @ModelAttribute UserRequest userRequest,
+            @ModelAttribute UserRequest userRequest,
             BindingResult result,
             @RequestPart MultipartFile photo) throws Exception {
 
-        Set<ConstraintViolation<UserRequest>> violations = validator.validate(userRequest);
+        Set<ConstraintViolation<UserRequest>> violations = validator.validate(userRequest, OnUpdate.class);
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(violations);
         }
-        userService.updateProfile(userRequest, photo);
 
+        userService.updateProfile(userRequest, photo);
         return ResponseEntity.ok(new ResultResponse());
     }
 
     @PostMapping(value = "/profile/my", consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('user:write')")
-    @Validated(OnUpdate.class)
     public ResponseEntity<ResultResponse> updateJsonProfile(
-            @RequestBody @Valid UserRequest userRequest) throws Exception {
+            @RequestBody
+            @Validated(OnUpdate.class)
+            UserRequest userRequest) throws Exception {
 
         userService.updateProfile(userRequest, null);
-
         return ResponseEntity.ok(new ResultResponse());
     }
 
@@ -153,7 +147,6 @@ public class ApiGeneralController {
         }
 
         StatisticResponse response = postService.setStatistic(mode);
-
         return ResponseEntity.ok(response);
     }
 

@@ -77,7 +77,7 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler {
         Map<String, String> fieldErrors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
+                .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage, (a, b) -> a));
 
         Map<String, String> classErrors = ex.getBindingResult()
                 .getAllErrors()

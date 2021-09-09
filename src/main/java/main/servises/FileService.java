@@ -25,7 +25,7 @@ import java.util.UUID;
 @Service
 public class FileService {
 
-    @Value("${resources.path}")
+    @Value("${upload.dir}")
     private String resourcesPathName;
     @Value("${max.file.size}")
     private int maxFileSize;

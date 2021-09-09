@@ -20,9 +20,7 @@ public final class Constants {
     public static final String RESTORE_EMAIL_MESSAGE = "Для востановления пароля перейдите по ссылке %s.\n" +
             "Ссылка действительна в течении 48 часов";
     public static final String WRONG_CODE_RESTORE = "Код не совпадает";
-    public static final String CODE_RESTORE_EXPIRED = "Ссылка для восстановления пароля устарела.\n" +
-            "<a href=\n" +
-            "\\\"/auth/restore\\\">Запросить ссылку снова</a>";
+    public static final String CODE_RESTORE_EXPIRED = "Ссылка для восстановления пароля устарела <a href=\"/auth/restore\">Запросить ссылку снова</a>";
     public static final String USER_NOT_FOUND = "Пользователь не найден";
     public static final String RESIZE_FILE_ERROR = "Не получилось измененить размер загруженого изображения";
     public static final String POST_DATE_ERROR = "Ошибка в дате";

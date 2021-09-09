@@ -40,7 +40,7 @@ public class UserService {
     @Autowired
     private FileService fileService;
 
-    @Value("${avatar.path}")
+    @Value("${avatars.dir}")
     private String avatarPathName;
 
     @Value("${root.url.path}")
@@ -98,7 +98,7 @@ public class UserService {
         }
     }
 
-    public void updateProfile(UserRequest userRequest, MultipartFile photo) throws Exception {
+    public void updateProfile(UserRequest userRequest, MultipartFile photo) {
 
         User user = getUserFromSecurityContext();
         if(userRequest.getName() != null) {

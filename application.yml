@@ -4,12 +4,10 @@ spring.resources.add-mappings: true
 spring.datasource.url: jdbc:mysql://localhost:3306/blog
 spring.datasource.username: root
 spring.datasource.password: testmysql
-#spring.jpa.hibernate.ddl-auto: create-drop
 spring.jpa.hibernate.ddl-auto: none
 spring.jpa.show-sql: true
 server.port: 8081
 
-#spring.datasource.initialization-mode: always
 spring.datasource.initialization-mode: never
 
 spring.data.web.pageable.page-parameter: offset
@@ -25,9 +23,9 @@ init.copyrightFrom: 2005
 time.expired.mc: 3600000
 restore.code.expired.hours: 48
 
-resources.path: ./src/main/resources
-upload.path: /upload
-avatar.path: /avatars
+upload.dir: ${user.dir}/upload
+images.dir: /images
+avatars.dir: /avatars
 max.file.size: 256000
 max.photo.size: 5000
 store.photo.width: 36

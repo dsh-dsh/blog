@@ -14,9 +14,6 @@ public class CodeValidator implements ConstraintValidator<IsCodeValid, String> {
 
     @Override
     public boolean isValid(String code, ConstraintValidatorContext constraintValidatorContext) {
-
-        if(code == null) return true;
-
         return userRepository.existsByCode(code);
     }
 }
