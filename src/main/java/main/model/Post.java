@@ -54,7 +54,7 @@ public class Post {
     private List<PostVote> votes = new ArrayList<>();
 
     @JsonIgnoreProperties("post")
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<TagPost> tags  = new HashSet<>();
 
 }

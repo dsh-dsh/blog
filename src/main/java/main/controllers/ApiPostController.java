@@ -86,7 +86,7 @@ public class ApiPostController {
     }
 
     @GetMapping("/moderation")
-    @PreAuthorize("hasAuthority('user:moderate')")
+    @PreAuthorize("hasAuthority('moderate')")
     public ResponseEntity<PostResponse> getPostModerationList(
             @RequestParam ModerationStatus status,
             Pageable pageable) {
@@ -101,7 +101,7 @@ public class ApiPostController {
     }
 
     @GetMapping("/my")
-    @PreAuthorize("hasAuthority('user:write')")
+    @PreAuthorize("hasAuthority('write')")
     public ResponseEntity<PostResponse> getMyPosts(
             @RequestParam String status,
             Pageable pageable) {
@@ -113,7 +113,7 @@ public class ApiPostController {
     }
 
     @PostMapping()
-    @PreAuthorize("hasAuthority('user:write')")
+    @PreAuthorize("hasAuthority('write')")
     public ResponseEntity<ResultResponse> newPost(
             @RequestBody @Valid PostRequest postRequest) {
 
@@ -123,7 +123,7 @@ public class ApiPostController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('user:write')")
+    @PreAuthorize("hasAuthority('write')")
     public ResponseEntity<ResultResponse> changePost(
             @RequestBody @Valid PostRequest postRequest,
             @PathVariable int id) {
@@ -135,7 +135,7 @@ public class ApiPostController {
     }
 
     @PostMapping("/like")
-    @PreAuthorize("hasAuthority('user:write')")
+    @PreAuthorize("hasAuthority('write')")
     public ResponseEntity<ResultResponse> like(
             @RequestBody LikeRequest request) {
 
@@ -146,7 +146,7 @@ public class ApiPostController {
     }
 
     @PostMapping("/dislike")
-    @PreAuthorize("hasAuthority('user:write')")
+    @PreAuthorize("hasAuthority('write')")
     public ResponseEntity<ResultResponse> dislike(
             @RequestBody LikeRequest request) {
 

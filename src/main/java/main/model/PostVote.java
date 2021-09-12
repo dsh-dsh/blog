@@ -30,6 +30,6 @@ public class PostVote {
     private Date time;
 
     @Column(nullable = false, columnDefinition="tinyint")
-    private int value;
+    private int value = 0;
 
 }

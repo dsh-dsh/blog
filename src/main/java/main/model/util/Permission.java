@@ -2,8 +2,8 @@ package main.model.util;
 
 public enum Permission {
 
-    WRITE("user:write"),
-    MODERATE("user:moderate");
+    WRITE("write"),
+    MODERATE("moderate");
 
     private final String permission;
 

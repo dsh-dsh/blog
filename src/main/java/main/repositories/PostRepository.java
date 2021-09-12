@@ -50,9 +50,11 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
             "SUM(CASE WHEN votes.value < 0 THEN 1 ELSE 0 END) ASC")
     Page<Post> findOrderByLikes(Pageable pageable);
 
-    Page<Post> findByTitleContainingOrTextContaining(
+    Page<Post> findByTitleContainingOrTextContainingAndIsActiveAndModerationStatus(
             String title,
             String text,
+            boolean isActive,
+            ModerationStatus moderationStatus,
             Pageable pageable);
 
     @Query("SELECT p " +
@@ -62,7 +64,13 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
             "AND DATE(p.time) = :date")
     Page<Post> findByTime(Date date, Pageable pageable);
 
-    @Query("SELECT post FROM Post AS post JOIN post.tags AS tagPost JOIN tagPost.tag AS tag WHERE tag.name = :tagName")
+    @Query("SELECT post " +
+            "FROM Post AS post " +
+            "JOIN post.tags AS tagPost " +
+            "JOIN tagPost.tag AS tag " +
+            "WHERE post.isActive = true " +
+            "AND post.moderationStatus = 'ACCEPTED' " +
+            "AND tag.name = :tagName")
     Page<Post> findByTags(String tagName, Pageable pageable);
 
     @Modifying

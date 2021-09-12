@@ -14,7 +14,7 @@ public class PostRequest {
 
     private boolean active;
 
-    @Size(min = 3, message = Constants.TITLE_TOO_SHORT)
+    @Size(min = 5, message = Constants.TITLE_TOO_SHORT)
     private String title;
 
     private String[] tags;

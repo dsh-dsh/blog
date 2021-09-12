@@ -9,7 +9,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Entity
 @Table(name = "captcha_codes")
-public class CaptchaCode {
+public class Captcha {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +24,7 @@ public class CaptchaCode {
     @Column(nullable = false, columnDefinition="tinytext")
     private String secretCode;
 
-    public CaptchaCode(Date time, String code, String secretCode) {
+    public Captcha(Date time, String code, String secretCode) {
         this.time = time;
         this.code = code;
         this.secretCode = secretCode;

@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -82,7 +81,7 @@ public class ApiGeneralController {
     }
 
     @PostMapping("/image")
-    @PreAuthorize("hasAuthority('user:write')")
+    @PreAuthorize("hasAuthority('write')")
     public String addImage (
             @RequestParam MultipartFile image) throws Exception{
 
@@ -93,7 +92,7 @@ public class ApiGeneralController {
     }
 
     @PostMapping("/comment")
-    @PreAuthorize("hasAuthority('user:write')")
+    @PreAuthorize("hasAuthority('write')")
     public ResponseEntity<CommentResponse> addComment(
             @RequestBody @Valid CommentRequest commentRequest) {
 
@@ -103,7 +102,7 @@ public class ApiGeneralController {
     }
 
     @PostMapping("/moderation")
-    @PreAuthorize("hasAuthority('user:moderate')")
+    @PreAuthorize("hasAuthority('moderate')")
     public ResponseEntity<ResultResponse> moderatePost(
             @RequestBody ModerationRequest request) {
 
@@ -112,11 +111,10 @@ public class ApiGeneralController {
     }
 
     @PostMapping(value = "/profile/my", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAuthority('user:write')")
+    @PreAuthorize("hasAuthority('write')")
     public ResponseEntity<ResultResponse> updateFormProfile(
             @ModelAttribute UserRequest userRequest,
-            BindingResult result,
-            @RequestPart MultipartFile photo) throws Exception {
+            @RequestPart MultipartFile photo) {
 
         Set<ConstraintViolation<UserRequest>> violations = validator.validate(userRequest, OnUpdate.class);
         if (!violations.isEmpty()) {
@@ -128,7 +126,7 @@ public class ApiGeneralController {
     }
 
     @PostMapping(value = "/profile/my", consumes = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAuthority('user:write')")
+    @PreAuthorize("hasAuthority('write')")
     public ResponseEntity<ResultResponse> updateJsonProfile(
             @RequestBody
             @Validated(OnUpdate.class)
@@ -139,19 +137,18 @@ public class ApiGeneralController {
     }
 
     @GetMapping("/statistics/{mode}")
-    @PreAuthorize("hasAuthority('user:write')")
+    @PreAuthorize("hasAuthority('write')")
     public ResponseEntity<StatisticResponse> statistic(@PathVariable String mode) {
 
-        if(!settingsService.getGlobalSettings().isStatisticIsPublic()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        }
+        StatisticResponse response = postService.getStatistic(mode);
 
-        StatisticResponse response = postService.setStatistic(mode);
+        System.out.println(response);
+
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/settings")
-    @PreAuthorize("hasAuthority('user:moderate')")
+    @PreAuthorize("hasAuthority('moderate')")
     public void putSettings(@RequestBody SettingsDTO settings) {
 
         settingsService.setGlobalSettings(settings);

@@ -1,13 +1,13 @@
 package main.repositories;
 
-import main.model.CaptchaCode;
+import main.model.Captcha;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.CrudRepository;
 
 import javax.transaction.Transactional;
 import java.util.Date;
 
-public interface CaptchaRepository  extends CrudRepository<CaptchaCode, Integer> {
+public interface CaptchaRepository  extends CrudRepository<Captcha, Integer> {
 
     @Modifying
     @Transactional

@@ -6,6 +6,7 @@ import main.api.responses.PostResponse;
 import main.api.responses.StatisticResponse;
 import main.dto.PostDTO;
 import main.dto.PostDTOSingle;
+import main.dto.SettingsDTO;
 import main.exceptions.NoSuchPostException;
 import main.mappers.PostMapperSingle;
 import main.mappers.PostRequestMapper;
@@ -38,6 +39,8 @@ public class PostService {
     private PostMapperSingle postMapperSingle;
     @Autowired
     private PostRequestMapper postRequestMapper;
+    @Autowired
+    private SettingsService settingsService;
 
     public PostResponse getPosts(String mode, Pageable pageable) {
 
@@ -68,7 +71,10 @@ public class PostService {
 
     public PostResponse searchPosts(String query, Pageable pageable) {
 
-        Page<Post> page = postRepository.findByTitleContainingOrTextContaining(query, query, pageable);
+        Page<Post> page = postRepository
+                .findByTitleContainingOrTextContainingAndIsActiveAndModerationStatus(
+                        query, query, true, ModerationStatus.ACCEPTED, pageable);
+
         List<PostDTO> postDTOList = page.getContent().stream()
                 .map(postMapper::mapToDTO).collect(Collectors.toList());
 
@@ -103,9 +109,9 @@ public class PostService {
     public PostDTOSingle getPostsById(int id) {
 
         Post post = postRepository.findById(id).orElseThrow(() -> new NoSuchPostException(id));
-
         User user = userService.getUserFromSecurityContext();
-        if(!user.isModerator() && !user.equals(post.getUser())) {
+
+        if(user == null || (!user.isModerator() && !user.equals(post.getUser()))) {
             post.setViewCount(post.getViewCount() + 1);
             postRepository.save(post);
         }
@@ -219,12 +225,10 @@ public class PostService {
         User user = userService.getUserFromSecurityContext();
         Post post = postRepository.findById(postId).orElseThrow(() -> new NoSuchPostException(postId));
 
-        System.out.println(user);
-
         List<PostVote> votes = post.getVotes();
         PostVote vote = votes.stream()
                 .filter(v -> v.getUser() == user)
-                .findAny()
+                .findFirst()
                 .orElse(new PostVote(0, user, post, new Date(), newValue));
 
         if(vote.getId() == 0) {
@@ -242,19 +246,21 @@ public class PostService {
         return true;
     }
 
-    public StatisticResponse setStatistic(String mode) {
+    public StatisticResponse getStatistic(String mode) {
 
         System.out.println(mode);
 
         List<Post> posts = new ArrayList<>();
         User user = userService.getUserFromSecurityContext();
 
+        SettingsDTO settings = settingsService.getGlobalSettings();
+
         if(mode.equals("my")) {
             posts = postRepository
                     .findByIsActiveAndModerationStatusAndUserOrderByTimeAsc(true, ModerationStatus.ACCEPTED, user);
 
         } else if(mode.equals("all")) {
-            if(!user.isModerator()) {
+            if(!user.isModerator() && !settings.isStatisticIsPublic()) {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
             }
             posts = postRepository

@@ -3,7 +3,7 @@ package main.servises;
 import com.github.cage.Cage;
 import com.github.cage.GCage;
 import main.dto.CaptchaDTO;
-import main.model.CaptchaCode;
+import main.model.Captcha;
 import main.repositories.CaptchaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +19,7 @@ public class CaptchaService {
     @Autowired
     private CaptchaRepository captchaRepository;
     @Value("${time.expired.mc}")
-    private String timeExpired;
+    private long timeExpired;
 
     public CaptchaDTO getNewCaptcha() {
 
@@ -27,8 +27,8 @@ public class CaptchaService {
         String secretCode = UUID.randomUUID().toString().replaceAll("-", "");
         String base64Image = getBase64Image(code);
 
-        CaptchaCode captchaCode = new CaptchaCode(new Date(), code, secretCode);
-        captchaRepository.save(captchaCode);
+        Captcha captcha = new Captcha(new Date(), code, secretCode);
+        captchaRepository.save(captcha);
         deleteOldCaptcha();
 
         return new CaptchaDTO(secretCode, base64Image);
@@ -41,10 +41,10 @@ public class CaptchaService {
 
     }
 
-    public void deleteOldCaptcha() throws NumberFormatException{
+    public void deleteOldCaptcha() {
 
         Date dateExpired = new Date();
-        dateExpired.setTime(new Date().getTime() - Long.parseLong(timeExpired));
+        dateExpired.setTime(new Date().getTime() - timeExpired);
         captchaRepository.deleteByTimeLessThan(dateExpired);
 
     }
