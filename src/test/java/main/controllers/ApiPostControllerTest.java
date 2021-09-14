@@ -6,6 +6,7 @@ import main.api.requests.PostRequest;
 import main.model.*;
 import main.repositories.PostRepository;
 import main.servises.UserService;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -141,13 +142,7 @@ public class ApiPostControllerTest {
     public void newPostWithBadRequestTest() throws Exception {
 
         String[] tags = new String[]{"mySql", "spring"};
-
-        PostRequest request = new PostRequest();
-        request.setActive(true);
-        request.setTimestamp(new Date().getTime()/1000);
-        request.setTitle("123");
-        request.setText("toShortText");
-        request.setTags(tags);
+        PostRequest request = getPostRequest("123", "toShortText", tags);
 
         this.mockMvc.perform(post("/api/post")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -168,13 +163,7 @@ public class ApiPostControllerTest {
 
         int postCountBefore = postRepository.countByIsActiveAndModerationStatus(true, ModerationStatus.NEW);
         String[] tags = new String[]{"mySql", "spring"};
-
-        PostRequest request = new PostRequest();
-        request.setActive(true);
-        request.setTimestamp(new Date().getTime()/1000);
-        request.setTitle("title");
-        request.setText("text..............................................");
-        request.setTags(tags);
+        PostRequest request = getPostRequest("title", "text..............................................", tags);
 
         this.mockMvc.perform(post("/api/post")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -192,18 +181,12 @@ public class ApiPostControllerTest {
     @WithUserDetails(userEmail)
     @Sql(statements = "update posts set title = 'old title', text = 'old text..........................................' where title = 'new title'",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    public void changePostTest() throws Exception {
+    public void updatePostTest() throws Exception {
 
         int id = 10;
         String title = "new title";
         String[] tags = new String[]{"spring", "mySql"};
-
-        PostRequest request = new PostRequest();
-        request.setActive(true);
-        request.setTimestamp(new Date().getTime()/1000);
-        request.setTitle(title);
-        request.setText("new text..............................................");
-        request.setTags(tags);
+        PostRequest request = getPostRequest(title, "text..............................................", tags);
 
         this.mockMvc.perform(put("/api/post/" + id)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -219,6 +202,24 @@ public class ApiPostControllerTest {
 
     @Test
     @WithUserDetails(userEmail)
+    public void updatePostWithWrongUserTest() throws Exception {
+
+        int id = 9;
+        String title = "new title";
+        String[] tags = new String[]{"spring", "mySql"};
+        PostRequest request = getPostRequest("new title", "text..............................................", tags);
+
+        this.mockMvc.perform(put("/api/post/" + id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.result").value("false"));
+
+    }
+
+    @Test
+    @WithUserDetails(userEmail)
     @Sql(statements =
             "update post_votes set value = -1 " +
             "where post_id = 2 and user_id = (select id from users where email = '" + userEmail + "')",
@@ -228,6 +229,7 @@ public class ApiPostControllerTest {
         int id = 2;
         LikeRequest request = new LikeRequest();
         request.setPostId(id);
+
         this.mockMvc.perform(post("/api/post/like")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -243,8 +245,10 @@ public class ApiPostControllerTest {
                     "where post_id = 2 and user_id = (select id from users where email = '" + moderatorEmail + "')",
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void dislikeFailsTest() throws Exception {
+
         LikeRequest request = new LikeRequest();
         request.setPostId(2);
+
         this.mockMvc.perform(post("/api/post/dislike")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -252,7 +256,17 @@ public class ApiPostControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result").value("false"));
 
+    }
 
+    @NotNull
+    private PostRequest getPostRequest(String title, String text, String[] tags) {
+        PostRequest request = new PostRequest();
+        request.setActive(true);
+        request.setTimestamp(new Date().getTime()/1000);
+        request.setTitle(title);
+        request.setText(text);
+        request.setTags(tags);
+        return request;
     }
 
 }

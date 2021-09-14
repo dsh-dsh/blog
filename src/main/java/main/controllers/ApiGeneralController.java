@@ -11,14 +11,12 @@ import main.servises.*;
 import main.validation.OnUpdate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -67,7 +65,7 @@ public class ApiGeneralController {
     @GetMapping("/tag")
     public ResponseEntity<TagResponse> tags() {
 
-        List<TagDTO> tags = tagService.getTagResponse();
+        List<TagDTO> tags = tagService.getTags();
         TagResponse tagResponse = new TagResponse(tags);
         return ResponseEntity.ok(tagResponse);
     }

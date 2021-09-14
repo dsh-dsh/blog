@@ -9,7 +9,13 @@ import java.util.List;
 
 public interface TagRepository extends CrudRepository<Tag, Integer> {
 
-    List<Tag> findAll();
+    @Query("SELECT tag FROM Tag AS tag " +
+            "JOIN tag.posts AS tagPost " +
+            "JOIN tagPost.post AS post " +
+            "WHERE post.isActive = true " +
+            "AND post.moderationStatus = 'ACCEPTED' " +
+            "GROUP BY tag")
+    List<Tag> findByPostIsActiveAndAccepted();
 
     List<Tag> findByNameIgnoreCaseIn(Collection<String> tagNames);
 

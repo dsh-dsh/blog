@@ -191,6 +191,11 @@ public class PostService {
         int id = postRequest.getId();
         Post post = postRepository.findById(id).orElseThrow(() -> new NoSuchPostException(id));
 
+        User user = userService.getUserFromSecurityContext();
+        if (!user.isModerator() && !user.equals(post.getUser())) {
+            throw new NoSuchPostException(id);
+        }
+
         long timestamp = postRequest.getTimestamp()*1000;
         if(post.getTime().getTime() < timestamp) {
             post.setTime(new Date(timestamp));
@@ -198,7 +203,6 @@ public class PostService {
         post.setActive(postRequest.isActive());
         post.setTitle(postRequest.getTitle());
         post.setText(postRequest.getText());
-
 
         List<Tag> tags = tagService.addIfNotExists(postRequest.getTags());
         Set<TagPost> newTagPosts = tags.stream()

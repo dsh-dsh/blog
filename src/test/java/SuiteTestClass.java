@@ -1,5 +1,6 @@
-package main.controllers;
-
+import main.controllers.ApiAuthControllerTest;
+import main.controllers.ApiGeneralControllerTest;
+import main.controllers.ApiPostControllerTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 

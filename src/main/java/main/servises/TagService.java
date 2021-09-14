@@ -25,14 +25,14 @@ public class TagService {
     @Autowired
     private TagMapper tagMapper;
 
-    public List<TagDTO> getTagResponse() {
+    public List<TagDTO> getTags() {
 
-        List<Tag> tagList = tagRepository.findAll();
+        List<Tag> tagList = tagRepository.findByPostIsActiveAndAccepted();
         List<TagDTO> tags = new ArrayList<>();
         int postCount = postService.getPostCount(true, ModerationStatus.ACCEPTED);
 
-        if (postCount == 0) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        if (postCount == 0 || tagList.size() == 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
 
         int maxPosts = tagList.stream()

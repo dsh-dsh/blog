@@ -94,12 +94,10 @@ public class FileService {
             int x, y, size;
 
             if(height > width) {
-                System.out.println(1);
                 x = 0;
                 y = (height - width) / 2;
                 size = width;
             } else {
-                System.out.println(2);
                 y = 0;
                 x = (width - height) / 2;
                 size = height;
