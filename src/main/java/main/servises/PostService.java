@@ -230,6 +230,7 @@ public class PostService {
         Post post = postRepository.findById(postId).orElseThrow(() -> new NoSuchPostException(postId));
 
         List<PostVote> votes = post.getVotes();
+
         PostVote vote = votes.stream()
                 .filter(v -> v.getUser() == user)
                 .findFirst()

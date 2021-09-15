@@ -48,8 +48,8 @@ public class ApiAuthControllerTest {
     @Value("${time.expired.mc}")
     private long timeExpired;
 
-    private static final String existingEmail = "dan.shipilov@gmail.com";
-    private String userName = "daniil";
+    private static final String existingEmail = "user@email.com";
+    private String userName = "user";
 
     @Test
     public void checkTest() throws Exception {
@@ -125,7 +125,12 @@ public class ApiAuthControllerTest {
     }
 
     @Test
-    @Sql(statements = "delete from users where users.email = 'new@email.com'", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @Sql(statements = "insert into captcha_codes (time, code, secret_code) " +
+            "values  ('2021-01-01 01:00:00', 'captchaCode', 'secretCode')",
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(statements = {"delete from users where users.email = 'new@email.com'",
+            "delete from captcha_codes where code = 'captchaCode'"},
+            executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void registerTest() throws Exception {
 
         String email = "new@email.com";
@@ -203,6 +208,11 @@ public class ApiAuthControllerTest {
     }
 
     @Test
+    @Sql(statements = "insert into captcha_codes (time, code, secret_code) " +
+            "values ('2021-01-01 01:00:00', 'captchaCode', 'secretCode')",
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(statements = "delete from captcha_codes where code = 'captchaCode'",
+            executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void changePasswordTest() throws Exception {
 
         userService.sendRestoreEmail(existingEmail);

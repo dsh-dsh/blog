@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="INFO">
+  <appenders>
+    <File name="votes" fileName="logs/votes.log">
+      <PatternLayout pattern="%d{dd.MM.yyyy HH:mm:ss.SSS} %p %l [%t] %m%n" />
+      <MarkerFilter marker="VOTES" />
+    </File>
+  </appenders>
+
+  <loggers>
+    <root level="info">
+      <appenderRef ref="votes" />
+    </root>
+  </loggers>
+</configuration>

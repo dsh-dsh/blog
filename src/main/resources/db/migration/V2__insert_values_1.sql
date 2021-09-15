@@ -6,8 +6,8 @@ values
 ("STATISTICS_IS_PUBLIC", "Показывать всем статистику блога", "YES");
 
 insert into users (name, email, password, is_moderator, reg_time)
-values ('moderator', 'mod@email.com', '123', 1, NOW());
+values ('moderator', 'mod@email.com', '$2a$12$zWdJzVm3Rhjof9o9g/rnSOX96GHbAbdSLocunRYp0pXETKXSX1Gxq', 1, NOW());
 insert into users (name, email, password, is_moderator, reg_time)
-values ('user', 'user@email.com', '222', 0, NOW());
+values ('user', 'user@email.com', '$2a$12$zWdJzVm3Rhjof9o9g/rnSOX96GHbAbdSLocunRYp0pXETKXSX1Gxq', 0, NOW());
 insert into users (name, email, password, is_moderator, reg_time)
-values ('user2', 'user2@email.com', '333', 0, NOW());
+values ('user2', 'user2@email.com', '$2a$12$zWdJzVm3Rhjof9o9g/rnSOX96GHbAbdSLocunRYp0pXETKXSX1Gxq', 0, NOW());
