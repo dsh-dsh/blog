@@ -34,8 +34,6 @@ public class UserService {
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
-    private PostService postService;
-    @Autowired
     private EmailService emailService;
     @Autowired
     private FileService fileService;

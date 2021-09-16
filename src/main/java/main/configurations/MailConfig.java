@@ -14,7 +14,7 @@ public class MailConfig {
     @Value("${spring.mail.host}")
     private String host;
 
-    @Value("${spring.mail.fromEmail}")
+    @Value("${spring.mail.from.email}")
     private String fromEmail;
 
     @Value("${spring.mail.password}")
