@@ -70,11 +70,10 @@ public class PostService {
     public PostResponse searchPosts(String query, Pageable pageable) {
 
         Page<Post> page = postRepository
-                .findByTitleContainingOrTextContainingAndIsActiveAndModerationStatus(
-                        query, query, true, ModerationStatus.ACCEPTED, pageable);
+                .findByIsActiveAndModerationStatusAndTitleContainingOrTextContaining(
+                        true, ModerationStatus.ACCEPTED, query, query, pageable);
 
         return getPostResponse(page);
-
     }
 
     public PostResponse getPostsByDate(String requestDate, Pageable pageable) {
@@ -83,7 +82,6 @@ public class PostService {
             Date date = new SimpleDateFormat("yyyy-MM-dd").parse(requestDate);
             Page<Post> page = postRepository.findByTime(date, pageable);
             return getPostResponse(page);
-
         } catch (ParseException ex) {
             throw new NoSuchPostException(Constants.POST_DATE_ERROR);
         }
@@ -92,8 +90,8 @@ public class PostService {
     public PostResponse getPostsByTag(String tag, Pageable pageable) {
 
         Page<Post> page = postRepository.findByTags(tag, pageable);
-        return getPostResponse(page);
 
+        return getPostResponse(page);
     }
 
     public PostDTOSingle getPostsById(int id) {
@@ -107,7 +105,6 @@ public class PostService {
         }
 
         return postMapperSingle.mapToDTO(post);
-
     }
 
     public int getPostCount(boolean isActive, ModerationStatus moderationStatus) {
@@ -168,7 +165,6 @@ public class PostService {
         post.setTags(tagPosts);
 
         postRepository.save(post);
-
     }
 
     public void updatePost(PostRequest postRequest) {

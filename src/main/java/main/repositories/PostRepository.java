@@ -50,11 +50,11 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
             "SUM(CASE WHEN votes.value < 0 THEN 1 ELSE 0 END) ASC")
     Page<Post> findOrderByLikes(Pageable pageable);
 
-    Page<Post> findByTitleContainingOrTextContainingAndIsActiveAndModerationStatus(
-            String title,
-            String text,
+    Page<Post> findByIsActiveAndModerationStatusAndTitleContainingOrTextContaining(
             boolean isActive,
             ModerationStatus moderationStatus,
+            String title,
+            String text,
             Pageable pageable);
 
     @Query("SELECT p " +
