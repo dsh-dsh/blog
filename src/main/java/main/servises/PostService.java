@@ -1,9 +1,9 @@
 package main.servises;
 
 import main.Constants;
-import main.api.requests.PostRequest;
-import main.api.responses.PostResponse;
-import main.api.responses.StatisticResponse;
+import main.dto.requests.PostRequest;
+import main.dto.responses.PostResponse;
+import main.dto.responses.StatisticResponse;
 import main.dto.PostDTO;
 import main.dto.PostDTOSingle;
 import main.dto.SettingsDTO;
@@ -13,6 +13,7 @@ import main.mappers.PostRequestMapper;
 import main.model.*;
 import main.repositories.PostRepository;
 import main.mappers.PostMapper;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -62,10 +63,7 @@ public class PostService {
                 break;
         }
 
-        List<PostDTO> postDTOList = page.getContent().stream()
-                .map(postMapper::mapToDTO).collect(Collectors.toList());
-
-        return new PostResponse(page.getTotalElements(), postDTOList);
+        return getPostResponse(page);
 
     }
 
@@ -75,10 +73,7 @@ public class PostService {
                 .findByTitleContainingOrTextContainingAndIsActiveAndModerationStatus(
                         query, query, true, ModerationStatus.ACCEPTED, pageable);
 
-        List<PostDTO> postDTOList = page.getContent().stream()
-                .map(postMapper::mapToDTO).collect(Collectors.toList());
-
-        return new PostResponse(page.getTotalElements(), postDTOList);
+        return getPostResponse(page);
 
     }
 
@@ -87,9 +82,7 @@ public class PostService {
         try {
             Date date = new SimpleDateFormat("yyyy-MM-dd").parse(requestDate);
             Page<Post> page = postRepository.findByTime(date, pageable);
-            List<PostDTO> postDTOList = page.getContent().stream()
-                    .map(postMapper::mapToDTO).collect(Collectors.toList());
-            return new PostResponse(page.getTotalElements(), postDTOList);
+            return getPostResponse(page);
 
         } catch (ParseException ex) {
             throw new NoSuchPostException(Constants.POST_DATE_ERROR);
@@ -99,10 +92,7 @@ public class PostService {
     public PostResponse getPostsByTag(String tag, Pageable pageable) {
 
         Page<Post> page = postRepository.findByTags(tag, pageable);
-        List<PostDTO> postDTOList = page.getContent().stream()
-                .map(postMapper::mapToDTO).collect(Collectors.toList());
-
-        return new PostResponse(page.getTotalElements(), postDTOList);
+        return getPostResponse(page);
 
     }
 
@@ -130,12 +120,7 @@ public class PostService {
                 true,
                 status,
                 pageable);
-
-        List<PostDTO> postDTOList = page.getContent().stream()
-                .map(postMapper::mapToDTO).collect(Collectors.toList());
-
-
-        return new PostResponse(page.getTotalElements(), postDTOList);
+        return getPostResponse(page);
     }
 
     public PostResponse getMyPosts(String status, Pageable pageable) {
@@ -158,12 +143,12 @@ public class PostService {
                 break;
         }
 
-        Page<Post> page = postRepository.findByIsActiveAndModerationStatusAndUserOrderByTimeDesc(isActive, moderationStatus, user, pageable);
-
-        List<PostDTO> postDTOList = page.getContent().stream()
-                .map(postMapper::mapToDTO).collect(Collectors.toList());
-
-        return new PostResponse(page.getTotalElements(), postDTOList);
+        Page<Post> page = postRepository.findByIsActiveAndModerationStatusAndUserOrderByTimeDesc(
+                isActive,
+                moderationStatus,
+                user,
+                pageable);
+        return getPostResponse(page);
     }
 
     public void savePost(PostRequest postRequest) {
@@ -253,17 +238,13 @@ public class PostService {
 
     public StatisticResponse getStatistic(String mode) {
 
-        System.out.println(mode);
-
         List<Post> posts = new ArrayList<>();
         User user = userService.getUserFromSecurityContext();
-
         SettingsDTO settings = settingsService.getGlobalSettings();
 
         if(mode.equals("my")) {
             posts = postRepository
                     .findByIsActiveAndModerationStatusAndUserOrderByTimeAsc(true, ModerationStatus.ACCEPTED, user);
-
         } else if(mode.equals("all")) {
             if(!user.isModerator() && !settings.isStatisticIsPublic()) {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
@@ -276,18 +257,21 @@ public class PostService {
                 .flatMap(post -> post.getVotes().stream())
                 .collect(Collectors.toMap(PostVote::getValue, vote -> 1, (v1, v2) -> v1 + 1));
         int viewCount = posts.stream().reduce(0, (count, post) -> count + post.getViewCount(), Integer::sum);
-        long publication = posts.stream()
-                .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND))
-                .getTime().getTime()/1000;
+        Post post = posts.stream().findFirst().orElse(null);
+        long publication = (post != null) ? post.getTime().getTime()/1000 : 0;
 
-        StatisticResponse response = new StatisticResponse();
-        response.setPostsCount(posts.size());
-        response.setLikesCount(likes.getOrDefault(1, 0));
-        response.setDislikesCount(likes.getOrDefault(-1, 0));
-        response.setViewsCount(viewCount);
-        response.setFirstPublication(publication);
+        return StatisticResponse.builder()
+                .postsCount(posts.size())
+                .likesCount(likes.getOrDefault(1, 0))
+                .dislikesCount(likes.getOrDefault(-1, 0))
+                .viewsCount(viewCount)
+                .firstPublication(publication)
+                .build();
+    }
 
-        return response;
+    private PostResponse getPostResponse(Page<Post> page) {
+        List<PostDTO> postDTOList = page.getContent().stream()
+                .map(postMapper::mapToDTO).collect(Collectors.toList());
+        return new PostResponse(page.getTotalElements(), postDTOList);
     }
 }

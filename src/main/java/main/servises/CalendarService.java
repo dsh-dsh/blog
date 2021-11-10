@@ -1,6 +1,6 @@
 package main.servises;
 
-import main.api.responses.CalendarResponse;
+import main.dto.responses.CalendarResponse;
 import main.dto.CalendarDTO;
 import main.model.ModerationStatus;
 import main.repositories.CalendarRepository;
@@ -39,7 +39,6 @@ public class CalendarService {
         map = list.stream()
                 .filter(e -> e.getDate().substring(0, 4).equals(String.valueOf(finalYear)))
                 .collect(Collectors.toMap(CalendarDTO::getDate, CalendarDTO::getCount));
-
 
         return new CalendarResponse(arr, map);
     }

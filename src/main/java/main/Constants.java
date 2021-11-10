@@ -25,4 +25,9 @@ public final class Constants {
     public static final String RESIZE_FILE_ERROR = "Не получилось измененить размер загруженого изображения";
     public static final String POST_DATE_ERROR = "Ошибка в дате";
     public static final String NO_POSTS_YET = "Еще нет опубликованных постов";
+    public static final String MULTIUSER_MODE = "MULTIUSER_MODE";
+    public static final String POST_PREMODERATION = "POST_PREMODERATION";
+    public static final String STATISTICS_IS_PUBLIC = "STATISTICS_IS_PUBLIC";
+    public static final String YES = "YES";
+    public static final String NO = "NO";
 }

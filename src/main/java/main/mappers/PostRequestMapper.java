@@ -1,6 +1,6 @@
 package main.mappers;
 
-import main.api.requests.PostRequest;
+import main.dto.requests.PostRequest;
 import main.model.Post;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;

@@ -2,17 +2,18 @@ package main.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import main.Constants;
 
 @Data
 public class SettingsDTO {
 
-    @JsonProperty("MULTIUSER_MODE")
+    @JsonProperty(Constants.MULTIUSER_MODE)
     private boolean multiuserMode;
 
-    @JsonProperty("POST_PREMODERATION")
+    @JsonProperty(Constants.POST_PREMODERATION)
     private boolean postPremoderation;
 
-    @JsonProperty("STATISTICS_IS_PUBLIC")
+    @JsonProperty(Constants.STATISTICS_IS_PUBLIC)
     private boolean statisticIsPublic;
 
 }

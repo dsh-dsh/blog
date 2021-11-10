@@ -1,9 +1,8 @@
 package main.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import main.api.requests.LoginRequest;
-import main.api.requests.UserRequest;
+import main.dto.requests.LoginRequest;
+import main.dto.requests.UserRequest;
 import main.model.Captcha;
 import main.model.User;
 import main.model.util.Role;

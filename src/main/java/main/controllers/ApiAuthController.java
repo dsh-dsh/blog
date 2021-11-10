@@ -1,9 +1,9 @@
 package main.controllers;
 
-import main.api.requests.LoginRequest;
-import main.api.requests.UserRequest;
-import main.api.responses.LoginResponse;
-import main.api.responses.ResultResponse;
+import main.dto.requests.LoginRequest;
+import main.dto.requests.UserRequest;
+import main.dto.responses.LoginResponse;
+import main.dto.responses.ResultResponse;
 import main.dto.CaptchaDTO;
 import main.mappers.UserMapper;
 import main.model.User;
@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import java.security.Principal;
 
 

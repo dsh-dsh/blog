@@ -1,9 +1,9 @@
 package main.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import main.api.requests.CommentRequest;
-import main.api.requests.ModerationRequest;
-import main.api.requests.UserRequest;
+import main.dto.requests.CommentRequest;
+import main.dto.requests.ModerationRequest;
+import main.dto.requests.UserRequest;
 import main.dto.SettingsDTO;
 import main.model.Comment;
 import main.model.ModerationStatus;
@@ -21,7 +21,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
@@ -31,7 +30,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import static org.hamcrest.Matchers.*;

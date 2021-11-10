@@ -1,8 +1,8 @@
 package main.servises;
 
 import main.Constants;
-import main.api.requests.LoginRequest;
-import main.api.requests.UserRequest;
+import main.dto.requests.LoginRequest;
+import main.dto.requests.UserRequest;
 import main.exceptions.NoSuchUserException;
 import main.model.User;
 import main.repositories.UserRepository;

@@ -1,9 +1,9 @@
 package main.controllers;
 
-import main.api.requests.LikeRequest;
-import main.api.requests.PostRequest;
-import main.api.responses.PostResponse;
-import main.api.responses.ResultResponse;
+import main.dto.requests.LikeRequest;
+import main.dto.requests.PostRequest;
+import main.dto.responses.PostResponse;
+import main.dto.responses.ResultResponse;
 import main.dto.PostDTOSingle;
 import main.model.ModerationStatus;
 import main.repositories.PostRepository;

@@ -1,6 +1,6 @@
 package main.mappers;
 
-import main.api.requests.CommentRequest;
+import main.dto.requests.CommentRequest;
 import main.exceptions.NoSuchPostException;
 import main.model.Comment;
 import main.model.Post;

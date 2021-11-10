@@ -1,6 +1,6 @@
 package main.validation.validators;
 
-import main.api.requests.UserRequest;
+import main.dto.requests.UserRequest;
 import main.repositories.CaptchaRepository;
 import main.validation.anotations.Captcha;
 import org.springframework.beans.factory.annotation.Autowired;

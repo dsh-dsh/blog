@@ -1,11 +1,11 @@
 package main.controllers;
 
-import main.api.requests.CommentRequest;
-import main.api.requests.ModerationRequest;
-import main.api.requests.UserRequest;
-import main.api.responses.*;
+import main.dto.requests.CommentRequest;
+import main.dto.requests.ModerationRequest;
+import main.dto.requests.UserRequest;
 import main.dto.SettingsDTO;
 import main.dto.TagDTO;
+import main.dto.responses.*;
 import main.model.Comment;
 import main.servises.*;
 import main.validation.OnUpdate;

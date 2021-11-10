@@ -1,8 +1,8 @@
 package main.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import main.api.requests.LikeRequest;
-import main.api.requests.PostRequest;
+import main.dto.requests.LikeRequest;
+import main.dto.requests.PostRequest;
 import main.model.*;
 import main.repositories.PostRepository;
 import main.servises.UserService;

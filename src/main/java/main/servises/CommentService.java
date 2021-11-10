@@ -1,6 +1,6 @@
 package main.servises;
 
-import main.api.requests.CommentRequest;
+import main.dto.requests.CommentRequest;
 import main.mappers.CommentRequestMapper;
 import main.model.Comment;
 import main.repositories.CommentRepository;

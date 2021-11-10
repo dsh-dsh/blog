@@ -18,7 +18,4 @@ public interface TagRepository extends CrudRepository<Tag, Integer> {
     List<Tag> findByPostIsActiveAndAccepted();
 
     List<Tag> findByNameIgnoreCaseIn(Collection<String> tagNames);
-
-    @Query(value = "insert into tags (name) values (:name) where not name = :name", nativeQuery = true)
-    void insertIfNoExists(String name);
 }

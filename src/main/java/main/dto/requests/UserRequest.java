@@ -1,4 +1,4 @@
-package main.api.requests;
+package main.dto.requests;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -30,7 +30,7 @@ public class UserRequest {
             groups = {OnCreate.class, OnUpdate.class, OnRestore.class})
     private String password;
 
-    @Pattern(regexp = "[\\w\\s@]+",
+    @Pattern(regexp = "[\\W\\w\\s@]+",
             message = Constants.WRONG_NAME,
             groups = {OnCreate.class, OnUpdate.class})
     private String name;
