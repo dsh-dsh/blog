@@ -16,7 +16,9 @@ import main.mappers.PostMapper;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.util.Streamable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -69,10 +71,7 @@ public class PostService {
 
     public PostResponse searchPosts(String query, Pageable pageable) {
 
-        Page<Post> page = postRepository
-                .findByIsActiveAndModerationStatusAndTitleContainingOrTextContaining(
-                        true, ModerationStatus.ACCEPTED, query, query, pageable);
-
+        Page<Post> page = postRepository.postSearch(query, pageable);
         return getPostResponse(page);
     }
 

@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.util.Streamable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
@@ -50,12 +51,12 @@ public interface PostRepository extends CrudRepository<Post, Integer> {
             "SUM(CASE WHEN votes.value < 0 THEN 1 ELSE 0 END) ASC")
     Page<Post> findOrderByLikes(Pageable pageable);
 
-    Page<Post> findByIsActiveAndModerationStatusAndTitleContainingOrTextContaining(
-            boolean isActive,
-            ModerationStatus moderationStatus,
-            String title,
-            String text,
-            Pageable pageable);
+    @Query("SELECT post FROM Post post " +
+            "WHERE post.isActive = true " +
+            "AND post.moderationStatus = 'ACCEPTED' " +
+            "AND (post.title LIKE '%' || :query || '%' " +
+            "OR post.text LIKE '%' || :query || '%')")
+    Page<Post> postSearch(String query, Pageable pageable);
 
     @Query("SELECT p " +
             "FROM Post p " +
