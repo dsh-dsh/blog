@@ -1,6 +1,6 @@
 
 # Blog
-**Итоговсая курсовая работа по курсу Skillbox Java-разработчик**<br>
+**Итоговая курсовая работа по курсу Skillbox Java-разработчик**<br>
 Проект размещен на сервисе **heroku** https://blog-skillbox-dsh.herokuapp.com/
 
 ---
